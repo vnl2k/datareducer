@@ -26,7 +26,7 @@ class datashader:
 		self.__min__ = list()
 		self.__max__ = list()
 		self.__bin_number__ = list()
-		self.binW = list()
+		self.__bin_width__ = list()
 		self.func = list()
 		self.binType = list()
 
@@ -36,20 +36,26 @@ class datashader:
 		self.__min__.append(mn)
 		self.__max__.append(mx)
 		self.__bin_number__.append(binLen)
-		self.binW.append((mx-mn)/binLen)
+		self.__bin_width__.append((mx-mn)/binLen)
 		self.func.append(_linInd)
 		self.binType.append('lin')
 		return self
 
 	def __setLog10Limits__(self, mn, mx, binLen):
-		if (mn>mx): return self
-		if (mn==0): return self
+		if (mn>mx):
+			print('\nMin cannot be larger than max.') 
+			return self
+
+		if (mn==0): 
+			print('\nLog min cannot equal zero.') 
+			return self
+
 		if (binLen==0): return self
 
 		self.__min__.append(math.fabs(mn))
 		self.__max__.append(math.fabs(mx))
 		self.__bin_number__.append(binLen)
-		self.binW.append(_log10(mx/mn)/binLen)
+		self.__bin_width__.append(_log10(mx/mn)/binLen)
 		self.func.append(_log10Ind)
 		self.binType.append('log10')
 		return self
@@ -58,7 +64,7 @@ class datashader:
 		if scale_type == 'lin': return self.__setLinLimits__(min, max, bin_number)
 		elif scale_type == 'log10': return self.__setLog10Limits__(min, max, bin_number)
 		else: 
-			print("Wrong scale type: \"{0}\". The permitted values are \"lin\" and \"log10\".".format(scale_type))
+			print("\nWrong scale type: \"{0}\". The permitted values are \"lin\" and \"log10\".".format(scale_type))
 			return self
 
 	def initialize(self):
@@ -71,15 +77,16 @@ class datashader:
 	# [
 	# 	[x1, x2, x3, ..., y],
 	# 	[x1, x2, x3, ..., y],
-	# 	[x1, x2, x3, ..., y]
+	# 	[x1, x2, x3, ..., y],
+	#   ...
 	# ]
 	def apply(self, matrix):
 		if self.__data__ is None: return self
 
-		# _values_to_index: an list of functions which calculates the corresponding indices
+		# _values_to_index: a list of functions which calculates the corresponding indices
 		_values_to_index = list(
 			map(
-				lambda _f,ind: _f(self.__min__[ind], self.__max__[ind], self.binW[ind], self.__bin_number__[ind]-1), 
+				lambda _f,ind: _f(self.__min__[ind], self.__max__[ind], self.__bin_width__[ind], self.__bin_number__[ind]-1), 
 				self.func, # _f
 				range(len(self.func)) # ind 
 			)
@@ -99,20 +106,14 @@ class datashader:
 		return self
 
 	def getAgg(self, agg):
-		# np.vectorize() is essentially a for-loop and can be replaced with a more optimised expression if needed.
+		# np.vectorize() is a for-loop and can be replaced with a more optimised expression if needed.
 		return np.vectorize(lambda i: i.get(agg))(self.__data__).tolist()
 
-	def getBin(self,ind):
-		def _genBin(mn,mx,w,tp):
-			_typeGen = {
-				'lin': lambda mn,mx,w: np.arange(mn,mx,w),
-				'log10': lambda mn,mx,w: list(map(lambda i: mn*math.pow(10,i), np.arange(0,_log10(mx/mn),w))),
-				# 'log10': lambda mn,mx,w:  np.arange(mn,mx,math.pow(10,w)),
-			}
-			return _typeGen[tp](mn,mx,w)
-
-		return _genBin(self.__min__[ind], self.__max__[ind], self.binW[ind], self.binType[ind])
-
-	linInd = _linInd;
-	log10Ind = _log10Ind;
-
+	def getDimension(self, ind):
+		_typeGen = {
+			'lin': lambda mn,mx,w: np.arange(mn,mx,w).tolist(),
+			'log10': lambda mn,mx,w: list(map(lambda i: mn*math.pow(10,i), np.arange(0, _log10(mx/mn), w))),
+		}
+		result = _typeGen.get(self.binType[ind])(self.__min__[ind], self.__max__[ind], self.__bin_width__[ind])
+		result.append(self.__max__[ind])
+		return result
