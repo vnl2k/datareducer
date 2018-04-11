@@ -9,16 +9,14 @@ def _linInd(mn, mx, binW, maxInd):
 	def ind(val):
 		if (val<=mn): return 0
 		if (val>=mx): return maxInd
-		# return math.floor((val-mn)/binW)
-		return (val-mn)%binW
+		return math.floor((val-mn)/binW)
 	return ind;
 
 def _log10Ind(mn, mx, binW, maxInd):
 	def ind(val):
 		if (val<=mn): return 0
 		if (val>=mx): return maxInd
-		# return math.floor(_log10(val/mn)/binW)
-		return _log10(val/mn)%binW
+		return math.floor(_log10(val/mn)/binW)
 	return ind;
 
 
@@ -66,13 +64,20 @@ class datashader:
 	def initialize(self):
 
 		# np.vectorize() is a for-loop and can be replaced with a more optimised expression if needed.
-		self.__data__= np.vectorize(lambda i: {'cnt': 0, 'sum': 0, 'sum2': 0, 'min': None, 'max': None})(np.empty(self.__bin_number__,dtype='object'))
+		self.__data__= np.vectorize(lambda i: {'cnt': 0, 'sum': 0, 'sum2': 0, 'min': 0, 'max': 0})(np.empty(self.__bin_number__,dtype='object'))
 		return self
 
-	def mapData(self, numpy_matrix):
+	# matrix = 
+	# [
+	# 	[x1, x2, x3, ..., y],
+	# 	[x1, x2, x3, ..., y],
+	# 	[x1, x2, x3, ..., y]
+	# ]
+	def apply(self, matrix):
 		if self.__data__ is None: return self
 
-		_colFunc = list(
+		# _values_to_index: an list of functions which calculates the corresponding indices
+		_values_to_index = list(
 			map(
 				lambda _f,ind: _f(self.__min__[ind], self.__max__[ind], self.binW[ind], self.__bin_number__[ind]-1), 
 				self.func, # _f
@@ -80,16 +85,22 @@ class datashader:
 			)
 		)
 		
-		for i in range(numpy_matrix.shape[0]):
-			inds = tuple(map(lambda _f, val: int(_f(val)), _colFunc, numpy_matrix[i,:]))
-			val = self.__data__[inds]
-			val['cnt'] +=1
+		y_val_ind = len(matrix[0])-1
+		for i in range(len(matrix)):
+			inds = tuple(map(lambda _f, val: int(_f(val)), _values_to_index, matrix[i]))
+			agg = self.__data__[inds]
+			agg['cnt'] +=1
+			y_val = matrix[i][y_val_ind]
+			agg['sum'] += y_val
+			agg['sum2'] += y_val*y_val
+			if agg['min']>y_val: agg['min'] = y_val 
+			if agg['max']<y_val: agg['max'] = y_val 
 
 		return self
 
 	def getAgg(self, agg):
 		# np.vectorize() is essentially a for-loop and can be replaced with a more optimised expression if needed.
-		return np.vectorize(lambda i: i[agg])(self.__data__)
+		return np.vectorize(lambda i: i.get(agg))(self.__data__).tolist()
 
 	def getBin(self,ind):
 		def _genBin(mn,mx,w,tp):
