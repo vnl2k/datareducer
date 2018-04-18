@@ -1,4 +1,4 @@
-import math
+import math, numbers
 import numpy as np
 
 
@@ -105,9 +105,23 @@ class datashader:
       )
     )
 
-    y_val_ind = len(matrix[0]) - 1
-    for i, val in enumerate(matrix):
-      inds = tuple(map(lambda _f, val: int(_f(val)), _values_to_index, matrix[i]))
+    """
+    See https://stackoverflow.com/questions/1952464/in-python-how-do-i-determine-if-an-object-is-iterable#1952481
+    for a discussion on __iter__, __getitem___, etc. 
+    """
+    if isinstance(matrix[0], numbers.Number):
+      y_val_ind = 0
+    else:
+      y_val_ind = len(matrix[0]) - 1
+
+    # gen = lambda val: yield val
+
+    for i, item in enumerate(matrix):
+      if isinstance(item, numbers.Number):
+        # item = gen(item)
+        item = [item]
+
+      inds = tuple(map(lambda _f, val: int(_f(val)), _values_to_index, item))
       agg = self.__data__[inds]
 
       if agg is None:
@@ -115,7 +129,7 @@ class datashader:
 
       agg['cnt'] += 1
 
-      y_val = val[y_val_ind]
+      y_val = item[y_val_ind]
 
       agg['sum'] += y_val
       agg['sum2'] += y_val*y_val
