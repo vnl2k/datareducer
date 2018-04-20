@@ -5,22 +5,59 @@ import numpy as np
 def _log10(val):
   return math.log10(math.fabs(val))
 
-def _linInd(min_val, max_val, bin_count, max_ind):
+def linear_index(min_val, max_val, bin_width, max_ind):
+  """Calculates the linear index of the corresponding bin.
+
+  Arguments:
+    min_val -- The minimum value of the scale
+    max_val -- The maxomum value of the scale
+    bin_width -- The number of bins of the scale
+    max_ind -- The index of the last bin for that scale
+  """
+
+  # pylint: disable=missing-docstring
   def ind(val):
+    """Returns the index number
+
+    Arguments:
+      val {number} -- Value to be mapped to index number
+
+    Returns:
+      number -- Index number of the corresponding bin
+    """
     if val <= min_val:
       return 0
     if val >= max_val:
       return max_ind
-    return math.floor((val-min_val)/bin_count)
+    return math.floor((val-min_val)/bin_width)
+    # return round((val-min_val)/bin_width)
   return ind
 
-def _log10Ind(min_val, max_val, bin_count, max_ind):
+def log10_index(min_val, max_val, bin_width, max_ind):
+  """Calculates the log-10 index of the corresponding bin.
+
+  Arguments:
+    min_val {number} -- The minimum value of the scale
+    max_val {number} -- The maxomum value of the scale
+    bin_width {number} -- The number of bins of the scale
+    max_ind {integer} -- The index of the last bin for that scale
+  """
+
   def ind(val):
+    """Returns the index number
+
+    Arguments:
+      val {number} -- Value to be mapped to index number
+
+    Returns:
+      number -- Index number of the corresponding bin
+    """
     if val <= min_val:
       return 0
     if val >= max_val:
       return max_ind
-    return math.floor(_log10(val/min_val)/bin_count)
+    return math.floor(_log10(val/min_val)/bin_width)
+    # return round(_log10(val/min_val)/bin_width)
   return ind
 
 
@@ -42,7 +79,7 @@ class datashader:
     self.__max__.append(max_val)
     self.__bin_number__.append(bin_count)
     self.__bin_width__.append((max_val-min_val)/bin_count)
-    self.func.append(_linInd)
+    self.func.append(linear_index)
     self.binType.append('lin')
     return self
 
@@ -62,7 +99,7 @@ class datashader:
     self.__max__.append(math.fabs(max_val))
     self.__bin_number__.append(bin_count)
     self.__bin_width__.append(_log10(max_val/min_val)/bin_count)
-    self.func.append(_log10Ind)
+    self.func.append(log10_index)
     self.binType.append('log10')
     return self
 
@@ -114,11 +151,9 @@ class datashader:
     else:
       y_val_ind = len(matrix[0]) - 1
 
-    # gen = lambda val: yield val
 
     for i, item in enumerate(matrix):
       if isinstance(item, numbers.Number):
-        # item = gen(item)
         item = [item]
 
       inds = tuple(map(lambda _f, val: int(_f(val)), _values_to_index, item))
@@ -152,5 +187,4 @@ class datashader:
 
   def getDimension(self, ind):
     result = self.type_lookup.get(self.binType[ind])(self.__min__[ind], self.__max__[ind], self.__bin_width__[ind])
-    result.append(self.__max__[ind])
     return result

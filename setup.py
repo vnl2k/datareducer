@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
   name="Datashader",
-  version="0.0.3",
+  version="0.0.4",
   url='https://github.com/vnl2k/Datashader',
   packages=['datashader'],
   install_requires=['numpy>=1.14.0'],
