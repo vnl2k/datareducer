@@ -1,5 +1,5 @@
 import math, numbers
-import numpy as np
+from numpy import empty, vectorize, arange
 
 
 def _log10(val):
@@ -15,9 +15,8 @@ def linear_index(min_val, max_val, bin_width, max_ind):
     max_ind -- The index of the last bin for that scale
   """
 
-  # pylint: disable=missing-docstring
   def ind(val):
-    """Returns the index number
+    """Returns the array index corresponding to `val`.
 
     Arguments:
       val {number} -- Value to be mapped to index number
@@ -30,7 +29,6 @@ def linear_index(min_val, max_val, bin_width, max_ind):
     if val >= max_val:
       return max_ind
     return math.floor((val-min_val)/bin_width)
-    # return round((val-min_val)/bin_width)
   return ind
 
 def log10_index(min_val, max_val, bin_width, max_ind):
@@ -44,7 +42,7 @@ def log10_index(min_val, max_val, bin_width, max_ind):
   """
 
   def ind(val):
-    """Returns the index number
+    """Returns the array index corresponding to `val`.
 
     Arguments:
       val {number} -- Value to be mapped to index number
@@ -57,7 +55,6 @@ def log10_index(min_val, max_val, bin_width, max_ind):
     if val >= max_val:
       return max_ind
     return math.floor(_log10(val/min_val)/bin_width)
-    # return round(_log10(val/min_val)/bin_width)
   return ind
 
 
@@ -114,9 +111,7 @@ class datashader:
 
   def initialize(self):
 
-    # np.vectorize() is a for-loop and can be replaced with a more optimised expression if needed.
-    # self.__data__ = np.vectorize(lambda i: {'cnt': 0, 'sum': 0, 'sum2': 0, 'min': 0, 'max': 0})(np.empty(self.__bin_number__, dtype='object'))
-    self.__data__ = np.empty(self.__bin_number__, dtype='object')
+    self.__data__ = empty(self.__bin_number__, dtype='object')
     return self
 
 
@@ -177,12 +172,12 @@ class datashader:
     return self
 
   def getAgg(self, agg):
-    # np.vectorize() is a for-loop and can be replaced with a more optimised expression if needed.
-    return np.vectorize(lambda i: i.get(agg) if i is not None else 0)(self.__data__).tolist()
+    # vectorize() is a for-loop which can be replaced with a more optimised expression if needed.
+    return vectorize(lambda i: i.get(agg) if i is not None else 0)(self.__data__).tolist()
 
   type_lookup = {
-    'lin': lambda mn,mx,w: np.arange(mn,mx,w).tolist(),
-    'log10': lambda mn,mx,w: list(map(lambda i: mn*math.pow(10,i), np.arange(0, _log10(mx/mn), w))),
+    'lin': lambda mn,mx,w: arange(mn,mx,w).tolist(),
+    'log10': lambda mn,mx,w: list(map(lambda i: mn*math.pow(10,i), arange(0, _log10(mx/mn), w))),
   }
 
   def getDimension(self, ind):

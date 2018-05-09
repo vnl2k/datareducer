@@ -71,8 +71,8 @@ def run(m, data, ut):
     def test_7_get_dimension(self):
       shader = m().setLimits(0,4,4).setLimits(1,10000,4, scale_type='log10')
 
-      self.assertEqual(shader.getDimension(0), [0.0, 1.0, 2.0, 3.0, 4])
-      self.assertEqual(shader.getDimension(1), [1.0, 10.0, 100.0, 1000.0, 10000.0])
+      self.assertEqual(shader.getDimension(0), [0.0, 1.0, 2.0, 3.0])
+      self.assertEqual(shader.getDimension(1), [1.0, 10.0, 100.0, 1000.0])
 
     def test_8_test_log_data(self):
       shader = m().setLimits(1e-10, 1, 10, scale_type='log10').initialize()
