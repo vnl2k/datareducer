@@ -1,61 +1,81 @@
 import math, numbers
 from numpy import empty, vectorize, arange
 
+# imports directly .pyx files which have no external C-dependencies
+# It is useful for dev purposes!
+import pyximport
+pyximport.install()
+
+from datashader.utils import cLinearIndex, cLog10Index # cython lib
+
 
 def _log10(val):
   return math.log10(math.fabs(val))
 
+
 def linear_index(min_val, max_val, bin_width, max_ind):
-  """Calculates the linear index of the corresponding bin.
-
-  Arguments:
-    min_val -- The minimum value of the scale
-    max_val -- The maxomum value of the scale
-    bin_width -- The number of bins of the scale
-    max_ind -- The index of the last bin for that scale
-  """
-
   def ind(val):
-    """Returns the array index corresponding to `val`.
+    return cLinearIndex(min_val, max_val, bin_width, max_ind, val)
 
-    Arguments:
-      val {number} -- Value to be mapped to index number
-
-    Returns:
-      number -- Index number of the corresponding bin
-    """
-    if val <= min_val:
-      return 0
-    if val >= max_val:
-      return max_ind
-    return math.floor((val-min_val)/bin_width)
   return ind
 
 def log10_index(min_val, max_val, bin_width, max_ind):
-  """Calculates the log-10 index of the corresponding bin.
-
-  Arguments:
-    min_val {number} -- The minimum value of the scale
-    max_val {number} -- The maxomum value of the scale
-    bin_width {number} -- The number of bins of the scale
-    max_ind {integer} -- The index of the last bin for that scale
-  """
-
   def ind(val):
-    """Returns the array index corresponding to `val`.
+    return cLog10Index(min_val, max_val, bin_width, max_ind, val)
 
-    Arguments:
-      val {number} -- Value to be mapped to index number
-
-    Returns:
-      number -- Index number of the corresponding bin
-    """
-    if val <= min_val:
-      return 0
-    if val >= max_val:
-      return max_ind
-    return math.floor(_log10(val/min_val)/bin_width)
   return ind
+
+# def linear_index(min_val, max_val, bin_width, max_ind):
+#   """Calculates the linear index of the corresponding bin.
+
+#   Arguments:
+#     min_val -- The minimum value of the scale
+#     max_val -- The maxomum value of the scale
+#     bin_width -- The number of bins of the scale
+#     max_ind -- The index of the last bin for that scale
+#   """
+
+#   def ind(val):
+#     """Returns the array index corresponding to `val`.
+
+#     Arguments:
+#       val {number} -- Value to be mapped to index number
+
+#     Returns:
+#       number -- Index number of the corresponding bin
+#     """
+#     if val <= min_val:
+#       return 0
+#     if val >= max_val:
+#       return max_ind
+#     return math.floor((val-min_val)/bin_width)
+#   return ind
+
+# def log10_index(min_val, max_val, bin_width, max_ind):
+#   """Calculates the log-10 index of the corresponding bin.
+
+#   Arguments:
+#     min_val {number} -- The minimum value of the scale
+#     max_val {number} -- The maxomum value of the scale
+#     bin_width {number} -- The number of bins of the scale
+#     max_ind {integer} -- The index of the last bin for that scale
+#   """
+
+#   def ind(val):
+#     """Returns the array index corresponding to `val`.
+
+#     Arguments:
+#       val {number} -- Value to be mapped to index number
+
+#     Returns:
+#       number -- Index number of the corresponding bin
+#     """
+#     if val <= min_val:
+#       return 0
+#     if val >= max_val:
+#       return max_ind
+#     return math.floor(_log10(val/min_val)/bin_width)
+#   return ind
 
 
 class datashader:
@@ -119,9 +139,9 @@ class datashader:
     """
       matrix =
       [
-        [x1, x2, x3, ..., y],
-        [x1, x2, x3, ..., y],
-        [x1, x2, x3, ..., y],
+        [x1, x2, x3, ...],
+        [x1, x2, x3, ...],
+        [x1, x2, x3, ...],
         ...
       ]
     """
