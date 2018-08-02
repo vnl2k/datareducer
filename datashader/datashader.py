@@ -6,6 +6,7 @@ from numpy import empty, vectorize, arange
 import pyximport
 pyximport.install()
 
+# from datashader.utils import cLinearIndex, cLog10Index # cython lib
 from datashader.utils import cLinearIndex, cLog10Index # cython lib
 
 
@@ -148,8 +149,8 @@ class datashader:
     if self.__data__ is None:
       return self
 
-    # _values_to_index: a list of functions which calculates the corresponding indices
-    _values_to_index = list(
+    # values_to_index: a list of functions which calculates the corresponding indices
+    values_to_index = list(
       map(
         lambda _f,ind: _f(self.__min__[ind], self.__max__[ind], self.__bin_width__[ind], self.__bin_number__[ind]-1),
         self.func, # _f
@@ -167,11 +168,12 @@ class datashader:
       y_val_ind = len(matrix[0]) - 1
 
 
-    for i, item in enumerate(matrix):
+    for item in matrix:
       if isinstance(item, numbers.Number):
         item = [item]
 
-      inds = tuple(map(lambda _f, val: int(_f(val)), _values_to_index, item))
+      inds = tuple(map(lambda _f, val: _f(val), values_to_index, item))
+
       agg = self.__data__[inds]
 
       if agg is None:

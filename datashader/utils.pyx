@@ -5,7 +5,7 @@ def _log10(double val):
   return math.log10(math.fabs(val))
 
 
-def cLinearIndex(float min_val, float max_val, long bin_width, long max_ind, float val):
+def cLinearIndex(float min_val, float max_val, float bin_width, long max_ind, float val):
   #   """Calculates the linear index of a bin.
 
   #   Arguments:
@@ -20,9 +20,10 @@ def cLinearIndex(float min_val, float max_val, long bin_width, long max_ind, flo
     return 0
   if val >= max_val:
     return max_ind
-  return math.floor((val-min_val)/bin_width)
 
-def cLog10Index(float min_val, float max_val, int bin_width, int max_ind, float val):
+  return int(math.floor((val-min_val)/bin_width))
+
+def cLog10Index(float min_val, float max_val, float bin_width, int max_ind, float val):
   #   """Calculates the log10 index of a bin.
 
   #   Arguments:
@@ -37,5 +38,5 @@ def cLog10Index(float min_val, float max_val, int bin_width, int max_ind, float 
     return 0
   if val >= max_val:
     return max_ind
-  return math.floor(_log10(val/min_val)/bin_width)
+  return int(math.floor(_log10(val/min_val)/bin_width))
 
