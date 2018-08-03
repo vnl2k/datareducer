@@ -1,6 +1,6 @@
-from datashader.datashader import datashader
-__version__ = "0.0.7"
-__name__ = "datashader"
+# from datashader.datashader import datashader
+from datashader.__packagevars__ import __name__, __version__
+
 
 
 # # Copyright 2018 Donald Stufft and individual contributors

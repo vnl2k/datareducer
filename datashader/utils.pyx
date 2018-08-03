@@ -1,4 +1,3 @@
-
 from libc cimport math
 
 def _log10(double val):

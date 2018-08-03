@@ -3,13 +3,12 @@ from numpy import empty, vectorize, arange
 from funkpy import Collection as _
 from typing import List, overload
 
-# imports directly .pyx files which have no external C-dependencies
-# It is useful for dev purposes!
-import pyximport
-pyximport.install()
+# pyximport imports directly .pyx files which have no external C-dependencies
+# It is used for dev purposes only!
+# import pyximport; pyximport.install()
 
-# from datashader.utils import cLinearIndex, cLog10Index # cython lib
-from datashader.utils import cLinearIndex, cLog10Index # cython lib
+# helpers written in Cython
+from datashader.utils import cLinearIndex, cLog10Index
 
 
 def _log10(val):

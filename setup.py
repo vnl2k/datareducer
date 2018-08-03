@@ -1,9 +1,10 @@
 from setuptools import setup
-from datashader import __version__, __name__
+from datashader.__packagevars__ import __version__ as version, __name__ as name
+import sys
 
 SETUP_VARS = dict(
-  name="Datashader",
-  version=__version__,
+  name=name,
+  version=version,
   url='https://github.com/vnl2k/Datashader',
   packages=['datashader'],
   install_requires=['numpy>=1.14.0'],
@@ -13,12 +14,27 @@ SETUP_VARS = dict(
 )
 
 try:
+  from setuptools.extension import Extension
   from Cython.Build import cythonize
-  
-  SETUP_VARS["install_requires"].append("cython>=0.28")
-  SETUP_VARS.update("ext_modules", cythonize("./datashader/utils.pyx"))
 
-  setup(SETUP_VARS)
+  # It is triggered only when building the installation package:
+  #    python3 setup.py sdist
+  # Otherwise, cythonize does NOT build the .c files from .pyx
+  if "sdist" in sys.argv:
+    cythonize("./datashader/utils.pyx")
+
+  extensions = [
+    Extension(
+      "datashader.utils", 
+      ["datashader/utils.c"]
+    )
+  ]
+
+  SETUP_VARS["install_requires"]#.append("cython>=0.28")
+  SETUP_VARS.update({"zip_safe": False})
+  SETUP_VARS.update({"ext_modules": cythonize(extensions)})
+
+  setup(**SETUP_VARS)
 
 except ImportError as e:
-  setup(SETUP_VARS)
+  setup(**SETUP_VARS)
