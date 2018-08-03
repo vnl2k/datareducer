@@ -1,5 +1,7 @@
 import math, numbers
 from numpy import empty, vectorize, arange
+from funkpy import Collection as _
+from typing import List, overload
 
 # imports directly .pyx files which have no external C-dependencies
 # It is useful for dev purposes!
@@ -93,11 +95,11 @@ class datashader:
     if min_val > max_val:
       return self
 
-    self.__min__.append(min_val)
-    self.__max__.append(max_val)
+    self.__min__.append(float(min_val))
+    self.__max__.append(float(max_val))
     self.__bin_number__.append(bin_count)
     self.__bin_width__.append((max_val-min_val)/bin_count)
-    self.func.append(linear_index)
+    self.func.append(cLinearIndex)
     self.binType.append('lin')
     return self
 
@@ -113,11 +115,11 @@ class datashader:
     if bin_count == 0:
       return self
 
-    self.__min__.append(math.fabs(min_val))
-    self.__max__.append(math.fabs(max_val))
+    self.__min__.append(float(math.fabs(min_val)))
+    self.__max__.append(float(math.fabs(max_val)))
     self.__bin_number__.append(bin_count)
     self.__bin_width__.append(_log10(max_val/min_val)/bin_count)
-    self.func.append(log10_index)
+    self.func.append(cLog10Index)
     self.binType.append('log10')
     return self
 
@@ -135,8 +137,43 @@ class datashader:
     self.__data__ = empty(self.__bin_number__, dtype='object')
     return self
 
+  @overload
+  def apply(self, arr: float, yValueIndex: int = None):
+    pass
+  def apply(self, arr: List[float], yValueIndex: int = None):
+    """
+      arr = [x1, x2, x3, ...]
+    """
 
-  def apply(self, matrix):
+    if self.__data__ is None:
+      self.initialize()
+
+    if isinstance(arr, numbers.Number):
+      arr = [arr]
+
+    inds = tuple(_.map(lambda val, ind: self.func[ind](self.__min__[ind], self.__max__[ind], self.__bin_width__[ind], self.__bin_number__[ind]-1, val), arr, range(len(arr)) ))
+
+    agg = self.__data__[inds]
+
+    if agg is None:
+      agg = self.__data__[inds] = {'cnt': 0, 'sum': 0, 'sum2': 0, 'min': 0, 'max': 0}
+
+    agg['cnt'] += 1
+
+    y_val_ind = yValueIndex or len(arr) - 1
+    y_val = arr[y_val_ind]
+
+    agg['sum'] += y_val
+    agg['sum2'] += y_val*y_val
+
+    if agg['min'] > y_val:
+      agg['min'] = y_val
+    if agg['max'] < y_val:
+      agg['max'] = y_val
+
+    return self
+
+  def applyOnBatches(self, matrix: List[List[float]], yValueIndex: int = None):
     """
       matrix =
       [
@@ -147,32 +184,28 @@ class datashader:
       ]
     """
     if self.__data__ is None:
+      self.initialize()
+
+    if isinstance(matrix[0], numbers.Number):
+      print("Argument \"matrix\" can only be List[List[float]]!")
       return self
 
-    # values_to_index: a list of functions which calculates the corresponding indices
-    values_to_index = list(
-      map(
-        lambda _f,ind: _f(self.__min__[ind], self.__max__[ind], self.__bin_width__[ind], self.__bin_number__[ind]-1),
-        self.func, # _f
-        range(len(self.func)) # ind
-      )
-    )
 
-    """
-    See https://stackoverflow.com/questions/1952464/in-python-how-do-i-determine-if-an-object-is-iterable#1952481
-    for a discussion on __iter__, __getitem___, etc. 
-    """
-    if isinstance(matrix[0], numbers.Number):
-      y_val_ind = 0
-    else:
-      y_val_ind = len(matrix[0]) - 1
+    zipMatrix = _.zip(*matrix)
+    new_matrix = []
+
+    for ind, f in enumerate(self.func):
+      min_val = self.__min__[ind]
+      max_val = self.__max__[ind]
+      bin_width = self.__bin_width__[ind]
+      bin_number = self.__bin_number__[ind]-1
+
+      new_matrix.append(_.map(lambda val: f(min_val, max_val, bin_width, bin_number, val), zipMatrix[ind]))
 
 
-    for item in matrix:
-      if isinstance(item, numbers.Number):
-        item = [item]
-
-      inds = tuple(map(lambda _f, val: _f(val), values_to_index, item))
+    y_val_ind = yValueIndex or len(matrix[0]) - 1
+    for item in _.zip(*new_matrix):
+      inds = tuple(item)
 
       agg = self.__data__[inds]
 
@@ -193,7 +226,8 @@ class datashader:
 
     return self
 
-  def getAgg(self, agg):
+
+  def getAgg(self, agg: str) -> List:
     # vectorize() is a for-loop which can be replaced with a more optimised expression if needed.
     return vectorize(lambda i: i.get(agg) if i is not None else 0)(self.__data__).tolist()
 
@@ -202,6 +236,6 @@ class datashader:
     'log10': lambda mn,mx,w: list(map(lambda i: mn*math.pow(10,i), arange(0, _log10(mx/mn), w))),
   }
 
-  def getDimension(self, ind):
+  def getDimension(self, ind: int):
     result = self.type_lookup.get(self.binType[ind])(self.__min__[ind], self.__max__[ind], self.__bin_width__[ind])
     return result
