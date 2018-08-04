@@ -8,75 +8,58 @@ from typing import List, overload
 # import pyximport; pyximport.install()
 
 # helpers written in Cython
-from datashader.utils import cLinearIndex, cLog10Index
+try:
+  from datashader.utils import cLinearIndex as linearIndex, cLog10Index as log10Index
+
+except ImportError as e:
+  def linearIndex(min_val, max_val, bin_width, max_ind, val):
+    """Calculates the linear index of the corresponding bin.
+
+    Arguments:
+      min_val -- The minimum value of the scale
+      max_val -- The maxomum value of the scale
+      bin_width -- The number of bins of the scale
+      max_ind -- The index of the last bin for that scale
+    """
+
+    if val <= min_val:
+      return 0
+    if val >= max_val:
+      return max_ind
+    
+    return math.floor((val-min_val)/bin_width)
+
+  def log10Index(min_val, max_val, bin_width, max_ind, val):
+    """Calculates the log-10 index of the corresponding bin.
+
+    Arguments:
+      min_val {number} -- The minimum value of the scale
+      max_val {number} -- The maxomum value of the scale
+      bin_width {number} -- The number of bins of the scale
+      max_ind {integer} -- The index of the last bin for that scale
+    """
+
+    if val <= min_val:
+      return 0
+    if val >= max_val:
+      return max_ind
+    return math.floor(_log10(val/min_val)/bin_width)
 
 
 def _log10(val):
   return math.log10(math.fabs(val))
 
 
-def linear_index(min_val, max_val, bin_width, max_ind):
-  def ind(val):
-    return cLinearIndex(min_val, max_val, bin_width, max_ind, val)
-
-  return ind
-
-def log10_index(min_val, max_val, bin_width, max_ind):
-  def ind(val):
-    return cLog10Index(min_val, max_val, bin_width, max_ind, val)
-
-  return ind
-
 # def linear_index(min_val, max_val, bin_width, max_ind):
-#   """Calculates the linear index of the corresponding bin.
-
-#   Arguments:
-#     min_val -- The minimum value of the scale
-#     max_val -- The maxomum value of the scale
-#     bin_width -- The number of bins of the scale
-#     max_ind -- The index of the last bin for that scale
-#   """
-
 #   def ind(val):
-#     """Returns the array index corresponding to `val`.
+#     return linearIndex(min_val, max_val, bin_width, max_ind, val)
 
-#     Arguments:
-#       val {number} -- Value to be mapped to index number
-
-#     Returns:
-#       number -- Index number of the corresponding bin
-#     """
-#     if val <= min_val:
-#       return 0
-#     if val >= max_val:
-#       return max_ind
-#     return math.floor((val-min_val)/bin_width)
 #   return ind
 
 # def log10_index(min_val, max_val, bin_width, max_ind):
-#   """Calculates the log-10 index of the corresponding bin.
-
-#   Arguments:
-#     min_val {number} -- The minimum value of the scale
-#     max_val {number} -- The maxomum value of the scale
-#     bin_width {number} -- The number of bins of the scale
-#     max_ind {integer} -- The index of the last bin for that scale
-#   """
-
 #   def ind(val):
-#     """Returns the array index corresponding to `val`.
+#     return log10Index(min_val, max_val, bin_width, max_ind, val)
 
-#     Arguments:
-#       val {number} -- Value to be mapped to index number
-
-#     Returns:
-#       number -- Index number of the corresponding bin
-#     """
-#     if val <= min_val:
-#       return 0
-#     if val >= max_val:
-#       return max_ind
-#     return math.floor(_log10(val/min_val)/bin_width)
 #   return ind
 
 
@@ -98,7 +81,7 @@ class datashader:
     self.__max__.append(float(max_val))
     self.__bin_number__.append(bin_count)
     self.__bin_width__.append((max_val-min_val)/bin_count)
-    self.func.append(cLinearIndex)
+    self.func.append(linearIndex)
     self.binType.append('lin')
     return self
 
@@ -118,7 +101,7 @@ class datashader:
     self.__max__.append(float(math.fabs(max_val)))
     self.__bin_number__.append(bin_count)
     self.__bin_width__.append(_log10(max_val/min_val)/bin_count)
-    self.func.append(cLog10Index)
+    self.func.append(log10Index)
     self.binType.append('log10')
     return self
 

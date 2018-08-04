@@ -1,3 +1,4 @@
+# v1.0.0
 import os
 from shutil import rmtree, move
 from glob import glob
