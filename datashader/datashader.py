@@ -7,12 +7,12 @@ from typing import List, overload
 # It is used for dev purposes only!
 # import pyximport; pyximport.install()
 
-# helpers written in Cython
 try:
+  # helpers written in Cython
   from datashader.utils import cLinearIndex as linearIndex, cLog10Index as log10Index
 
 except ImportError as e:
-  def linearIndex(min_val, max_val, bin_width, max_ind, val):
+  def linearIndex(min_val: float, max_val: float, bin_width: float, max_ind: int, val: float) -> int:
     """Calculates the linear index of the corresponding bin.
 
     Arguments:
@@ -26,10 +26,10 @@ except ImportError as e:
       return 0
     if val >= max_val:
       return max_ind
-    
+   
     return math.floor((val-min_val)/bin_width)
 
-  def log10Index(min_val, max_val, bin_width, max_ind, val):
+  def log10Index(min_val: float, max_val: float, bin_width: float, max_ind: int, val: float) -> int:
     """Calculates the log-10 index of the corresponding bin.
 
     Arguments:
@@ -46,21 +46,9 @@ except ImportError as e:
     return math.floor(_log10(val/min_val)/bin_width)
 
 
-def _log10(val):
+def _log10(val: float) -> float:
   return math.log10(math.fabs(val))
 
-
-# def linear_index(min_val, max_val, bin_width, max_ind):
-#   def ind(val):
-#     return linearIndex(min_val, max_val, bin_width, max_ind, val)
-
-#   return ind
-
-# def log10_index(min_val, max_val, bin_width, max_ind):
-#   def ind(val):
-#     return log10Index(min_val, max_val, bin_width, max_ind, val)
-
-#   return ind
 
 
 class datashader:
@@ -105,7 +93,7 @@ class datashader:
     self.binType.append('log10')
     return self
 
-  def setLimits(self, min_value, max_value, bin_number, scale_type='lin'):
+  def setLimits(self, min_value: float, max_value: float, bin_number: int, scale_type: str='lin'):
     if scale_type == 'lin':
       return self.__setLinLimits__(min_value, max_value, bin_number)
     elif scale_type == 'log10':
@@ -120,9 +108,9 @@ class datashader:
     return self
 
   @overload
-  def apply(self, arr: float, yValueIndex: int = None):
+  def apply(self, arr: float, yValueIndex: int=None):
     pass
-  def apply(self, arr: List[float], yValueIndex: int = None):
+  def apply(self, arr: List[float], yValueIndex: int=None):
     """
       arr = [x1, x2, x3, ...]
     """
@@ -155,7 +143,7 @@ class datashader:
 
     return self
 
-  def applyOnBatches(self, matrix: List[List[float]], yValueIndex: int = None):
+  def applyOnBatches(self, matrix: List[List[float]], yValueIndex: int=None):
     """
       matrix =
       [
