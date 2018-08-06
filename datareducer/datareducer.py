@@ -9,7 +9,7 @@ from typing import List, overload
 
 try:
   # helpers written in Cython
-  from datashader.utils import cLinearIndex as linearIndex, cLog10Index as log10Index
+  from datareducer.utils import cLinearIndex as linearIndex, cLog10Index as log10Index
 
 except ImportError as e:
   def linearIndex(min_val: float, max_val: float, bin_width: float, max_ind: int, val: float) -> int:
@@ -51,7 +51,7 @@ def _log10(val: float) -> float:
 
 
 
-class datashader:
+class datareducer:
   def __init__(self):
     self.__data__ = None
     self.__min__ = list()

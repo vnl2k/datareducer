@@ -1,8 +1,8 @@
 import unittest as ut
-from datashader import datashader
+from datareducer import datareducer
 
 DATA = []
 
 from tests.tests import run
-tests = ut.TestLoader().loadTestsFromTestCase(run(datashader, DATA, ut))
+tests = ut.TestLoader().loadTestsFromTestCase(run(datareducer, DATA, ut))
 ut.TextTestRunner(verbosity=2).run(tests)

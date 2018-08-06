@@ -1,12 +1,12 @@
 from setuptools import setup
-from datashader.__init__ import __version__ as version, __name__ as name
+from datareducer.__init__ import __version__ as version, __name__ as name
 import sys
 
 SETUP_VARS = dict(
   name=name,
   version=version,
-  url='https://github.com/vnl2k/Datashader',
-  packages=['datashader'],
+  url='https://github.com/vnl2k/datareducer',
+  packages=['datareducer'],
   install_requires=['numpy>=1.14.0', "funkpy>=0.0.17"],
   author="vnl2k",
   license='MIT',
@@ -21,17 +21,16 @@ try:
   #    python3 setup.py sdist
   # Otherwise, cythonize does NOT build the .c files from .pyx
   if "sdist" in sys.argv:
-    cythonize("./datashader/utils.pyx")
+    cythonize("./datareducer/utils.pyx")
 
 
   extensions = [
     Extension(
-      "datashader.utils", 
-      ["datashader/utils.c"]
+      "datareducer.utils", 
+      ["datareducer/utils.c"]
     )
   ]
 
-  SETUP_VARS["install_requires"]
   SETUP_VARS.update({"zip_safe": False})
   SETUP_VARS.update({"ext_modules": cythonize(extensions)})
 
