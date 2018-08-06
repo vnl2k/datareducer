@@ -8,6 +8,9 @@ SETUP_VARS = dict(
   url='https://github.com/vnl2k/datareducer',
   packages=['datareducer'],
   install_requires=['numpy>=1.14.0', "funkpy>=1.0.1"],
+  extras_require={
+    'Cython':  ["Cython>=0.28.3"]
+  },
   author="vnl2k",
   license='MIT',
   python_requires='>=3.5'
