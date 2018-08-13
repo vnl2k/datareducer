@@ -51,7 +51,7 @@ def _log10(val: float) -> float:
 
 
 
-class datareducer:
+class shader:
   def __init__(self):
     self.__data__ = None
     self.__min__ = list()
