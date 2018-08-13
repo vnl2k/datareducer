@@ -1,5 +1,6 @@
 import math, numbers
-from numpy import empty, vectorize, arange
+# REMOVE DEPENDENCE ON NUMPY
+# from numpy import empty, vectorize, arange
 from funkpy import Collection as _
 from typing import List, overload
 
