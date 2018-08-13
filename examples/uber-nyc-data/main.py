@@ -8,7 +8,7 @@ from matplotlib.pyplot import imshow, savefig, axis
 
 import datareducer
 
-shader = datareducer.datareducer().setLimits(40.4, 41.0, 5000).setLimits(-74.5, -73.5, 5000, scale_type='lin')
+shader = datareducer.shader().setLimits(40.4, 41.0, 5000).setLimits(-74.5, -73.5, 5000, scale_type='lin')
 
 
 # The CSV data can be downloaded here:

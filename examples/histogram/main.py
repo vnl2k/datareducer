@@ -4,18 +4,16 @@ from matplotlib.cm import ScalarMappable
 from matplotlib.pyplot import bar, savefig
 
 # imports class datareducer from module datareducer
-from datareducer import datareducer
+from datareducer import shader
 
 
-shader = datareducer().setLimits(-15, 15, 25)
+data_store = shader().setLimits(-15, 15, 25)
 
 i = 0
 while i < 10000:
-  shader.apply(gauss(0, 5))
+  data_store.apply(gauss(0, 5))
   i += 1
 
-print(shader.getDimension(0))
-print(shader.getAgg('cnt'))
-bar(shader.getDimension(0), shader.getAgg('cnt'), align="edge")
+bar(data_store.getDimension(0), data_store.getAgg('cnt'), align="edge")
 
 savefig('histogram.jpg', dpi=200, format="jpg", transparent=True)
