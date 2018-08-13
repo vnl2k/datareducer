@@ -12,11 +12,11 @@ pip3 install --index-url https://test.pypi.org/simple/ datareducer[Cython]
 ## API
 
 ```python
-from datareducer import datareducer
+from datareducer import shader
 
 data = [[1,1], [2,2], [3,4]]
 
-shader = datareducer().setLimits(-20, 20, 100).setLimits(1e-12, 1e-3, 100, scale_type='log10')
+shader = shader().setLimits(-20, 20, 100).setLimits(1e-12, 1e-3, 100, scale_type='log10')
 
 
 

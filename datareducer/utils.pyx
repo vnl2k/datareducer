@@ -15,10 +15,10 @@ def cLinearIndex(float min_val, float max_val, float bin_width, long max_ind, fl
   #     val -- The value to be mapped to bin index
   #   """
  
-  if val <= min_val:
-    return 0
-  if val >= max_val:
-    return max_ind
+  if val < min_val:
+    return None
+  if val > max_val:
+    return None
 
   return int(math.floor((val-min_val)/bin_width))
 
@@ -33,9 +33,9 @@ def cLog10Index(float min_val, float max_val, float bin_width, int max_ind, floa
   #     val -- The value to be mapped to bin index
   #   """
 
-  if val <= min_val:
-    return 0
-  if val >= max_val:
-    return max_ind
+  if val < min_val:
+    return None
+  if val > max_val:
+    return None
   return int(math.floor(_log10(val/min_val)/bin_width))
 
