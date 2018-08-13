@@ -45,6 +45,9 @@ print(data_store.getAgg("min"))
 # returns the min value for each bin
 # or the max value
 print(data_store.getAgg("max"))
+print(data_store.getAgg("sum"))
+print(data_store.getAgg("sum2"))
+
 ```
 
 ## References
