@@ -1,11 +1,12 @@
 import math, numbers
-from numpy import empty, vectorize, arange
+# REMOVE DEPENDENCE ON NUMPY
+# from numpy import empty, vectorize, arange
 from funkpy import Collection as _
 from typing import List, overload
 
 # pyximport imports directly .pyx files which have no external C-dependencies
 # It is used for dev purposes only!
-# import pyximport; pyximport.install()
+import pyximport; pyximport.install()
 
 try:
   # helpers written in Cython
@@ -22,10 +23,10 @@ except ImportError as e:
       max_ind -- The index of the last bin for that scale
     """
 
-    if val <= min_val:
-      return 0
-    if val >= max_val:
-      return max_ind
+    if val < min_val:
+      return None
+    if val > max_val:
+      return None
    
     return math.floor((val-min_val)/bin_width)
 
@@ -39,10 +40,10 @@ except ImportError as e:
       max_ind {integer} -- The index of the last bin for that scale
     """
 
-    if val <= min_val:
-      return 0
-    if val >= max_val:
-      return max_ind
+    if val < min_val:
+      return None
+    if val > max_val:
+      return None
     return math.floor(_log10(val/min_val)/bin_width)
 
 
@@ -123,6 +124,10 @@ class shader:
 
     inds = tuple(_.map(lambda val, ind: self.func[ind](self.__min__[ind], self.__max__[ind], self.__bin_width__[ind], self.__bin_number__[ind]-1, val), arr, range(len(arr)) ))
 
+    # Points outside the set limits are ignored.
+    if None in inds:
+      return self
+
     agg = self.__data__[inds]
 
     if agg is None:
@@ -177,6 +182,10 @@ class shader:
     for item in _.zip(*new_matrix):
       inds = tuple(item)
 
+      # Points outside the set limits are ignored.
+      if None in inds:
+        break
+      print(inds)
       agg = self.__data__[inds]
 
       if agg is None:
