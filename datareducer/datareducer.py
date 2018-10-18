@@ -6,7 +6,7 @@ from typing import List, overload
 
 # pyximport imports directly .pyx files which have no external C-dependencies
 # It is used for dev purposes only!
-import pyximport; pyximport.install()
+# import pyximport; pyximport.install()
 
 try:
   # helpers written in Cython
