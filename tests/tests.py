@@ -61,15 +61,17 @@ def run(m, data, ut):
        [0, 0, 1, 0],
        [0, 0, 0, 1]])
 
-      shader = m().setLimits(0,4,4).setLimits(1,1000,3, scale_type='log10').initialize()
-      shader.applyOnBatches([[0,2],[1,20],[2,200],[3,1000]])
+    def test_6b_exclude_values(self):
+      # values outside the limits are excluded, i.e. 1000 in is not within the limit
+      shader = m().setLimits(0, 4, 4).setLimits(1, 1000, 3, scale_type='log10').initialize()
+      shader.applyOnBatches([[0, 2], [1, 20], [2, 200], [3, 999]])
       self.assertEqual(shader.getAgg('cnt'), [[1, 0, 0],
        [0, 1, 0],
        [0, 0, 1],
        [0, 0, 1]])
 
     def test_7_get_dimension(self):
-      shader = m().setLimits(0,4,4).setLimits(1,10000,4, scale_type='log10')
+      shader = m().setLimits(0, 4, 4).setLimits(1, 10000, 4, scale_type='log10')
 
       self.assertEqual(shader.getDimension(0), [0.0, 1.0, 2.0, 3.0])
       self.assertEqual(shader.getDimension(1), [1.0, 10.0, 100.0, 1000.0])
