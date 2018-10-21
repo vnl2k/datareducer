@@ -1,6 +1,6 @@
 import math, numbers
 # REMOVE DEPENDENCE ON NUMPY
-# from numpy import empty, vectorize, arange
+from numpy import empty, vectorize, arange
 from funkpy import Collection as _
 from typing import List, overload
 
@@ -94,7 +94,7 @@ class shader:
     self.binType.append('log10')
     return self
 
-  def setLimits(self, min_value: float, max_value: float, bin_number: int, scale_type: str='lin'):
+  def setLimits(self, min_value: float, max_value: float, bin_number: int, scale_type: ('lin', 'log10')='lin'):
     if scale_type == 'lin':
       return self.__setLinLimits__(min_value, max_value, bin_number)
     elif scale_type == 'log10':
@@ -185,7 +185,6 @@ class shader:
       # Points outside the set limits are ignored.
       if None in inds:
         break
-      print(inds)
       agg = self.__data__[inds]
 
       if agg is None:
