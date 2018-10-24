@@ -2,8 +2,8 @@ from typing import Dict, List, Any, Callable
 
 def modifyChild(parent: Dict, key: str) -> Dict:
   child = parent.get(key, None)
-  if child != None:
-    child['cnt']+=1
+  if child is not None:
+    child['cnt'] += 1
   else:
     child = {'cnt': 1}
     parent[key] = child
@@ -11,20 +11,22 @@ def modifyChild(parent: Dict, key: str) -> Dict:
   return child
 
 def recursionOnChildren(parent: Dict, keys: List[Any]) -> None:
-  if len(keys) > 0:
+  if keys:
     k = keys.pop()
     child = modifyChild(parent, k)
-    if len(keys) > 0:
+    if keys:
       recursionOnChildren(child, keys)
     else:
       return
 
-def traverse(data: List[Any], func: Callable[[Any], Any]) -> Dict:
-  tree = {}
+def apply(data: List[Any], func: Callable[[Any], Any], tree=None) -> Dict:
+  if tree is None:
+    tree = {}
+
   for i in data:
     recursionOnChildren(tree, func(i))
 
   return  tree
 
 class exports: 
-  traverse = traverse
+  apply = apply
