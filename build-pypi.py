@@ -7,9 +7,9 @@ os.system("python3 setup.py sdist")
 rmtree("./" + PACKAGE_NAME + ".egg-info")
 
 # test.pypi.org
-os.system('python3 -m twine upload --repository-url "https://test.pypi.org/legacy/" "dist/*"')
+# os.system('python3 -m twine upload --repository-url "https://test.pypi.org/legacy/" "dist/*"')
 
 # live
-# os.system('python3 -m twine upload "dist/*"')
+os.system('python3 -m twine upload "dist/*"')
 
 # rmtree("./build")
