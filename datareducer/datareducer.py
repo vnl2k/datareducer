@@ -25,7 +25,7 @@ except ImportError as e:
 
     if val < min_val:
       return None
-    if val > max_val:
+    if val >= max_val:
       return None
    
     return math.floor((val-min_val)/bin_width)
@@ -42,7 +42,7 @@ except ImportError as e:
 
     if val < min_val:
       return None
-    if val > max_val:
+    if val >= max_val:
       return None
     return math.floor(_log10(val/min_val)/bin_width)
 

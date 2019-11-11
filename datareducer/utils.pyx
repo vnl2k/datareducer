@@ -17,7 +17,7 @@ def cLinearIndex(float min_val, float max_val, float bin_width, long max_ind, fl
  
   if val < min_val:
     return None
-  if val > max_val:
+  if val >= max_val:
     return None
 
   return int(math.floor((val-min_val)/bin_width))
@@ -35,7 +35,7 @@ def cLog10Index(float min_val, float max_val, float bin_width, int max_ind, floa
 
   if val < min_val:
     return None
-  if val > max_val:
+  if val >= max_val:
     return None
   return int(math.floor(_log10(val/min_val)/bin_width))
 
