@@ -15,6 +15,3 @@ os.system('python3 -m twine upload --repository-url "https://test.pypi.org/legac
 
 # live
 os.system('python3 -m twine upload "dist/*"')
-
-# remove the build file
-rmtree('./build')
