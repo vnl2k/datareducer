@@ -1,11 +1,20 @@
 import unittest as ut
-from datareducer import shader
+from datareducer import shader, shaderNumArr
 from datareducer import tree
+from datareducer import DataContainer
 
 DATA = []
 
 from tests.tests import run
 tests = ut.TestLoader().loadTestsFromTestCase(run(shader, DATA, ut))
+ut.TextTestRunner(verbosity=2).run(tests)
+
+from tests.data_container import run
+tests = ut.TestLoader().loadTestsFromTestCase(run(DataContainer, ut))
+ut.TextTestRunner(verbosity=2).run(tests)
+
+from tests.datareducer_num_arr import run
+tests = ut.TestLoader().loadTestsFromTestCase(run(shaderNumArr, [], ut))
 ut.TextTestRunner(verbosity=2).run(tests)
 
 
