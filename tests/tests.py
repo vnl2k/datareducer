@@ -53,7 +53,7 @@ def run(m, data, ut):
 
     def test_6_apply_linlog_data(self):
       shader = m().setLimits(0, 4, 4).setLimits(1, 10000, 4, scale_type='log10').initialize()
-      shader.applyOnBatches([[0, 1], [1, 10], [2, 100], [3, 1000]])
+      shader.applyOnBatches([[0, 1], [1, 10], [2, 100], [3, 1000], [4, 1001]])
 
 
       self.assertEqual(shader.getAgg('cnt'), [[1, 0, 0, 0],
@@ -64,7 +64,7 @@ def run(m, data, ut):
     def test_6b_exclude_values(self):
       # values outside the limits are excluded, i.e. 1000 in is not within the limit
       shader = m().setLimits(0, 4, 4).setLimits(1, 1000, 3, scale_type='log10').initialize()
-      shader.applyOnBatches([[0, 2], [1, 20], [2, 200], [3, 999]])
+      shader.applyOnBatches([[0, 2], [1, 20], [2, 200], [3, 999], [3, 1000]])
       self.assertEqual(shader.getAgg('cnt'), [[1, 0, 0],
        [0, 1, 0],
        [0, 0, 1],

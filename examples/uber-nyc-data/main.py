@@ -60,7 +60,7 @@ print("Total number of Uber rides in NYC: {0}".format(TOTAL_CNT))
 
 
 norm = colors.LogNorm(1, MAX_CNT, clip=True)
-cmap = colors.Colormap('gray_r').set_under(color=[0,0,0], alpha=None)
+cmap = colors.Colormap('gray_r').set_under(color=[0, 0, 0], alpha=None)
 
 # color_map converts count to RGB
 # color_map is very slow if used on python list
@@ -69,7 +69,7 @@ color_map = ScalarMappable(norm=norm, cmap=cmap).to_rgba
 # reversed the numpy array with [::-1]
 # converted bin count to RGB color using color_map
 CNT_MATRIX = np.array(_.zip(*CNT_MATRIX), dtype=np.int)
-color_data = _.map(lambda i: color_map(i), CNT_MATRIX[::-1] )
+color_data = _.map(lambda i: color_map(i), CNT_MATRIX[::-1])
 
 # plot the count matrix as an image
 f = imshow(color_data)

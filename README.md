@@ -2,10 +2,10 @@
 
 # Installation
 ```bash
-pip3 install --index-url https://test.pypi.org/simple/ datareducer
+pip3 install datareducer
 
 # with optional Cython support
-pip3 install --index-url https://test.pypi.org/simple/ datareducer[Cython]
+pip3 install datareducer[Cython]
 
 ```
 
@@ -22,8 +22,8 @@ data_store = shader().setLimits(0, 20, 21).setLimits(1e-12, 1e-3, 100, scale_typ
 oneD_store = shader().setLimits(0, 20, 21)
 # or multiple dimensions
 multi_store = shader() \
-    .setLimits(0, 20, 21)
-    .setLimits(-10, 100, 200)
+    .setLimits(0, 20, 21) \
+    .setLimits(-10, 100, 200) \
     .setLimits(1, 1e6, 7, scale_type="log10")
 
 # map values to bins
