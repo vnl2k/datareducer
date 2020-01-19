@@ -3,6 +3,7 @@ import os
 from typing import Generator, List
 from funkpy import Collection as _
 import numpy as np
+import time
 
 from matplotlib import colors
 from matplotlib.cm import ScalarMappable
@@ -79,12 +80,14 @@ def writeSnapshot(colorData, ind):
   # plot the count matrix as an image
   f = imshow(colorData)
   axis('off')
-  savefig('figure-{0}.jpg'.format(ind), dpi=500, format="jpg", transparent=True)
+  savefig('figure-{0}.png'.format(ind), dpi=500, format="png", transparent=True)
 
 
 stream = streamFromFiles(FILES)
 ind = 0
 snapshots = []
+
+startTime = time.monotonic()
 
 while True:
   b = next(stream, None)
@@ -114,6 +117,10 @@ for ind, s in enumerate(snapshots):
     index = ind
 
   writeSnapshot(s, index)
+
+endTime = time.monotonic() - startTime
+print(f"   Processing time:\t\t\t{endTime:.4f}s")
+
 
 # see https://eli.thegreenplace.net/2016/drawing-animated-gifs-with-matplotlib/
 os.system('convert -delay 60 -loop 0 figure-*.jpg figure.gif')

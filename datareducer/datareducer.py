@@ -1,5 +1,6 @@
 import math, numbers
-# REMOVE DEPENDENCE ON NUMPY
+from array import array
+
 from numpy import empty, vectorize, arange
 from funkpy import Collection as _
 from typing import List, overload
@@ -7,6 +8,8 @@ from typing import List, overload
 # pyximport imports directly .pyx files which have no external C-dependencies
 # It is used for dev purposes only!
 # import pyximport; pyximport.install()
+
+from datareducer.data_container import DataContainer
 
 try:
   # helpers written in Cython
@@ -49,6 +52,7 @@ except ImportError as e:
 
 def _log10(val: float) -> float:
   return math.log10(math.fabs(val))
+
 
 
 
@@ -210,10 +214,44 @@ class shader:
     return vectorize(lambda i: i.get(agg) if i is not None else 0)(self.__data__).tolist()
 
   type_lookup = {
-    'lin': lambda mn,mx,w: arange(mn,mx,w).tolist(),
-    'log10': lambda mn,mx,w: list(map(lambda i: mn*math.pow(10,i), arange(0, _log10(mx/mn), w))),
+    'lin': lambda mn, mx, w: arange(mn,mx,w).tolist(),
+    'log10': lambda mn, mx, w: list(map(lambda i: mn*math.pow(10,i), arange(0, _log10(mx/mn), w))),
   }
 
   def getDimension(self, ind: int):
     result = self.type_lookup.get(self.binType[ind])(self.__min__[ind], self.__max__[ind], self.__bin_width__[ind])
     return result
+
+class shaderArray(shader):
+  def initialize(self, typecode: str = 'd'):
+    self.__data__ = DataContainer(self.__bin_number__, typecode)
+    return self
+
+  @overload
+  def apply(self, arr: float, yValueIndex: int=None):
+    pass
+  def apply(self, arr: List[float], yValueIndex: int=None):
+    """
+      arr = [x1, x2, x3, ...]
+    """
+
+    if self.__data__ is None:
+      self.initialize()
+
+    if isinstance(arr, numbers.Number):
+      arr = [arr]
+
+    inds = _.map(\
+      lambda val, ind:  self.func[ind](self.__min__[ind], self.__max__[ind], self.__bin_width__[ind], self.__bin_number__[ind]-1, val),\
+      arr,\
+      range(len(arr))\
+    )
+
+    # Points outside the set limits are ignored.
+    if None in inds:
+      return self
+
+    # CNT only for now
+    self.__data__.set(inds, self.__data__.get(inds) + 1)
+
+    return self

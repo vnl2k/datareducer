@@ -84,8 +84,6 @@ def run(m, data, ut):
       shader.apply([3e-8])
       shader.apply(9.9e-8)
       shader.apply(9.9999e-8)
-      # shader.apply([1e-10, 1e-9, 1e-8, 3e-8, 9.9e-8, 9.9999e-8])
-
       self.assertEqual(shader.getAgg('cnt'), [1., 1, 4, 0, 0, 0, 0, 0, 0, 0])
 
   return tests

@@ -9,7 +9,8 @@ SETUP_VARS = dict(
   packages=['datareducer'],
   install_requires=['numpy>=1.14.0', "funkpy>=1.0.1"],
   extras_require={
-    'Cython':  ["Cython>=0.28.3"]
+    'Cython':  ["Cython>=0.28.3"],
+    'immutables': ["immutables>=0.11"]
   },
   author="vnl2k",
   license='MIT',
