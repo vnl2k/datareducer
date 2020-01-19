@@ -1,12 +1,8 @@
 from typing import List, Tuple, Iterable
 from array import array
 from math import floor
+import numbers
 from funkpy import Collection as _
-
-try:
-  from immutables import Map
-except ImportError as import_err:
-  pass
 
 
 def calcPos1(dimLens: Iterable[int], indices: Iterable[int]):
@@ -19,15 +15,16 @@ def calcPos3(dimLens: Iterable[int], indices: Iterable[int]) -> int:
   return indices[0]*(dimLens[1] * dimLens[2]) + indices[1]*dimLens[2] + indices[2]
 
 class DataContainer:
-  def __init__(self, dims: List[int], typecode: str = 'd'):
+  def __init__(self, dims: List[int], typecode: str = 'd', silent=False):
     length = _.reduce(lambda agg, i: agg*i, dims, 1)
      
-    ls = array(typecode, range(length))
+    ls = array(typecode, map(lambda i: 0, range(length)))
     
     dimsLen = len(dims)
     
     self.__buffer__ = ls
-    print('Container size in memory: {0} KB'.format(len(ls)*ls.itemsize / 1024))
+    if silent is False:
+      print('\nContainer size in memory: {0} KB'.format(len(ls)*ls.itemsize / 1024))
 
     self.__dims__ = dims
 
@@ -44,6 +41,8 @@ class DataContainer:
     return self.__buffer__[self.__calcPos__(self.__dims__, indices)]
 
   def __getitem__(self, indices: Tuple[int]):
+    if isinstance(indices, numbers.Number):
+      indices = [indices]
     return self.get(indices)
 
   def set(self, indices, val):
@@ -60,37 +59,47 @@ class DataContainer:
 
     return it
 
-class SparseDataContainer:
-  def __init__(self, dims: List[int], typecode: str = 'd'):
-    length = _.reduce(lambda agg, i: agg*i, dims, 1)
-     
-    sparseLS = Map().mutate()
-    
-    dimsLen = len(dims)
-    
-    self.__buffer__ = sparseLS
-    # print('Container size in memory: {0} KB'.format(len(ls)*ls.itemsize / 1024))
 
-    self.__dims__ = dims
+try:
+  from immutables import Map
+  class SparseDataContainer:
+    def __init__(self, dims: List[int], typecode: str = 'd'):
+      length = _.reduce(lambda agg, i: agg*i, dims, 1)
+       
+      sparseLS = Map().mutate()
+      
+      dimsLen = len(dims)
+      
+      self.__buffer__ = sparseLS
 
-    if dimsLen == 1:
-      self.__calcPos__ = calcPos1
-    
-    elif dimsLen == 2:
-      self.__calcPos__ = calcPos2
-    
-    elif dimsLen == 3:
-      self.__calcPos__ = calcPos3
+      self.__dims__ = dims
 
-  def get(self, indices: Tuple[int]):
-    return self.__buffer__[self.__calcPos__(self.__dims__, indices)]
+      if dimsLen == 1:
+        self.__calcPos__ = calcPos1
+      
+      elif dimsLen == 2:
+        self.__calcPos__ = calcPos2
+      
+      elif dimsLen == 3:
+        self.__calcPos__ = calcPos3
 
-  def __getitem__(self, indices: Tuple[int]):
-    return self.get(indices)
+    def get(self, indices: Tuple[int]):
+      return self.__buffer__[self.__calcPos__(self.__dims__, indices)]
 
-  def set(self, indices, val):
-    self.__buffer__[self.__calcPos__(self.__dims__, indices)] = val
-    return self
+    def __getitem__(self, indices: Tuple[int]):
+      if isinstance(indices, numbers.Number):
+        indices = [indices]
+
+      return self.get(indices)
+
+    def set(self, indices, val):
+      self.__buffer__[self.__calcPos__(self.__dims__, indices)] = val
+      return self
+
+except ImportError as import_err:
+  SparseDataContainer = None
+
+
 
 class exports:
   container = DataContainer

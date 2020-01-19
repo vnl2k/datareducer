@@ -225,7 +225,7 @@ class shader:
 
 class shaderNumArr(shader):
   def initialize(self, typecode: str = 'd'):
-    self.__data__ = DataContainer.container(self.__bin_number__, typecode)
+    self.__data__ = DataContainer(self.__bin_number__, typecode)
     return self
 
   @overload
@@ -253,6 +253,6 @@ class shaderNumArr(shader):
       return self
 
     # CNT only for now
-    self.__data__.set(inds, self.__data__.get(inds) + 1 )
+    self.__data__.set(inds, self.__data__.get(inds) + 1)
 
     return self
