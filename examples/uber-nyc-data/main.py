@@ -1,14 +1,22 @@
 import csv
+import os
+from typing import Generator, List
 from funkpy import Collection as _
 import numpy as np
+import time
 
 from matplotlib import colors
 from matplotlib.cm import ScalarMappable
-from matplotlib.pyplot import imshow, savefig, axis
+from matplotlib.pyplot import imshow, savefig, axis, matshow
+from matplotlib.animation import FuncAnimation
+
 
 import datareducer
 
-shader = datareducer.shader().setLimits(40.4, 41.0, 5000).setLimits(-74.5, -73.5, 5000, scale_type='lin')
+shader = datareducer \
+  .shader() \
+  .setLimits(40.4, 41.0, 2000) \
+  .setLimits(-74.1, -73.7, 2000, scale_type='lin')
 
 
 # The CSV data can be downloaded here:
@@ -22,56 +30,81 @@ FILES = [
   "uber-raw-data-may14.csv"
 ]
 
-def readFile(file_name: str) -> None:
+def fileStream(file_name: str, bathcSize: int = 700) -> Generator[List[List[float]], None, List[List[float]]]:
   with open(file_name, newline="\n") as file:
     data = csv.reader(file, delimiter=",")
 
     headers = next(data)
+    # yield headers;
 
-    # Processing the data in batches is slightly more efficient 
-    # than calling shader.apply for each and every row.
     j = 0
     queue = []
     for i in data:
-      if j < 700:
+      if j < bathcSize:
         queue.append(_.map(float, i[1:3]))
         j += 1
 
       else:
         j = 0
-        shader.applyOnBatches(queue)
+        yield queue
         queue = []
 
     if len(queue) > 0:
-      shader.applyOnBatches(queue)
+      return queue
 
-for f in FILES:
-  readFile(f)
+def streamFromFiles(files: List[str])-> Generator[List[List[float]], None, None]:
+  streamList = _.map(lambda f: fileStream(f), files)
 
-# trims the final data horizonally and vertically 
-CNT_MATRIX = shader.getAgg('cnt')[2000:4000]
+  for stream in streamList:
+    while stream:
+      s = next(stream, None)
+      if s == None:
+        break
+      else:
+        yield s
+
+  return None
+
+norm = colors.LogNorm(1, 500, clip=True)
+cmap = colors.Colormap('gray_r').set_under(color=[0, 0, 0], alpha=None)
+# color_map converts count to RGB
+# color_map is very slow if used on python list
+color_map = ScalarMappable(norm=norm, cmap=cmap).to_rgba
+
+def getShapshot(shader, color_map):
+  # map the count to RGB colors
+  # this is necessary for imshow to work
+  return _.map(lambda i: color_map(i), shader.getAgg('cnt'))
+
+def writeImg(colorData):
+  # plot the count matrix as an image
+  f = imshow(colorData)
+  axis('off')
+  savefig('figure .png', dpi=500, format="png", transparent=True)
+
+
+stream = streamFromFiles(FILES)
+ind = 0
+
+startTime = time.monotonic()
+
+batch = next(stream, None)
+while batch:
+  shader.applyOnBatches(batch)
+  batch = next(stream, None)
+
+
+CNT_MATRIX = shader.getAgg('cnt')
 MAX_CNT = max(max(CNT_MATRIX))
-CNT_MATRIX = _.zip(*CNT_MATRIX)[2000:4000]
+
+print("Maximun count of Uber rides in NYC: {0}".format(MAX_CNT))
 
 # total count
 TOTAL_CNT = sum(_.map(sum, CNT_MATRIX))
 print("Total number of Uber rides in NYC: {0}".format(TOTAL_CNT))
 
 
+writeImg(_.map(lambda i: color_map(i), CNT_MATRIX))
 
-norm = colors.LogNorm(1, MAX_CNT, clip=True)
-cmap = colors.Colormap('gray_r').set_under(color=[0, 0, 0], alpha=None)
-
-# color_map converts count to RGB
-# color_map is very slow if used on python list
-color_map = ScalarMappable(norm=norm, cmap=cmap).to_rgba
-
-# reversed the numpy array with [::-1]
-# converted bin count to RGB color using color_map
-CNT_MATRIX = np.array(_.zip(*CNT_MATRIX), dtype=np.int)
-color_data = _.map(lambda i: color_map(i), CNT_MATRIX[::-1])
-
-# plot the count matrix as an image
-f = imshow(color_data)
-axis('off')
-savefig('figure.jpg', dpi=500, format="jpg", transparent=True)
+endTime = time.monotonic() - startTime
+print(f"   Processing time:\t\t\t{endTime:.4f}s")
