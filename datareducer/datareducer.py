@@ -214,16 +214,15 @@ class shader:
     return vectorize(lambda i: i.get(agg) if i is not None else 0)(self.__data__).tolist()
 
   type_lookup = {
-    'lin': lambda mn,mx,w: arange(mn,mx,w).tolist(),
-    'log10': lambda mn,mx,w: list(map(lambda i: mn*math.pow(10,i), arange(0, _log10(mx/mn), w))),
+    'lin': lambda mn, mx, w: arange(mn,mx,w).tolist(),
+    'log10': lambda mn, mx, w: list(map(lambda i: mn*math.pow(10,i), arange(0, _log10(mx/mn), w))),
   }
 
   def getDimension(self, ind: int):
     result = self.type_lookup.get(self.binType[ind])(self.__min__[ind], self.__max__[ind], self.__bin_width__[ind])
     return result
 
-
-class shaderNumArr(shader):
+class shaderArray(shader):
   def initialize(self, typecode: str = 'd'):
     self.__data__ = DataContainer(self.__bin_number__, typecode)
     return self
