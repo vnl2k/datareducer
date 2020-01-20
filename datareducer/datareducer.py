@@ -112,6 +112,11 @@ class shader:
     self.__data__ = empty(self.__bin_number__, dtype='object')
     return self
 
+  # shorter name than initialize
+  def init(self):
+    self.initialize()
+    return self
+
   @overload
   def apply(self, arr: float, yValueIndex: int=None):
     pass
@@ -209,7 +214,7 @@ class shader:
     return self
 
 
-  def getAgg(self, agg: str) -> List:
+  def getAgg(self, agg: str = 'cnt') -> List:
     # vectorize() is a for-loop which can be replaced with a more optimised expression if needed.
     return vectorize(lambda i: i.get(agg) if i is not None else 0)(self.__data__).tolist()
 
@@ -255,3 +260,6 @@ class shaderArray(shader):
     self.__data__.set(inds, self.__data__.get(inds) + 1)
 
     return self
+
+  def getAgg(self):
+    return self.__data__.toMatrix()

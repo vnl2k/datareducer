@@ -59,6 +59,28 @@ class DataContainer:
 
     return it
 
+  def toMatrix(self):
+    dimsLen = len(self.__dims__)
+    if dimsLen == 1:
+      return self.tolist()
+
+    dimsReverse = self.__dims__.copy()
+    dimsReverse.reverse()
+    buffer = self.__buffer__.tolist()
+    newBuffer = []
+    ind = 0
+    
+    for size in dimsReverse:
+      
+      while ind < len(buffer):
+        newBuffer.append(buffer[ind : ind + size])
+        ind += size
+
+      buffer = newBuffer
+      newBuffer = []
+      ind = 0
+
+    return buffer[0]
 
 try:
   from immutables import Map
