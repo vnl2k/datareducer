@@ -18,19 +18,17 @@ jobs:
       # - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
       # - restore_cache:  # ensure this step occurs *before* installing dependencies
       #     key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-      - run:
-        command: |  # use pipenv to install dependencies
-          pip install numpy
-          pip install funkpy
+      - run: |
+        pip install numpy
+        pip install funkpy
       # - save_cache:
       #     key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       #     paths:
       #       - ".venv"
       #       - "/usr/local/bin"
       #       - "/usr/local/lib/python3.6/site-packages"
-      - run:
-        command: |
-          python manage.py test
+      - run: |
+        python manage.py test
 
   python3.7:
     <<: *template
