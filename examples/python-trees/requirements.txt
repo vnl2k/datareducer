@@ -1,0 +1,10 @@
+cycler==0.10.0
+datareducer==0.1.0
+funkpy==1.0.1
+graphviz==0.10.1
+kiwisolver==1.0.1
+matplotlib==3.0.0
+numpy==1.15.3
+pyparsing==2.2.2
+python-dateutil==2.7.3
+six==1.11.0
