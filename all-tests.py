@@ -5,15 +5,20 @@ from datareducer import DataContainer
 
 DATA = []
 
-from tests.tests import run
+from tests.datareducer import run
 tests = ut.TestLoader().loadTestsFromTestCase(run(shader, DATA, ut))
 ut.TextTestRunner(verbosity=2).run(tests)
 
 from tests.data_container import run
-tests = ut.TestLoader().loadTestsFromTestCase(run(DataContainer, ut))
+container, sparseContainer = run(DataContainer, ut)
+
+tests = ut.TestLoader().loadTestsFromTestCase(container)
 ut.TextTestRunner(verbosity=2).run(tests)
 
-from tests.datareducer_num_arr import run
+tests = ut.TestLoader().loadTestsFromTestCase(sparseContainer)
+ut.TextTestRunner(verbosity=2).run(tests)
+
+from tests.datareducer_array import run
 tests = ut.TestLoader().loadTestsFromTestCase(run(shaderArray, [], ut))
 ut.TextTestRunner(verbosity=2).run(tests)
 

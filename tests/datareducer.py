@@ -2,7 +2,7 @@ def run(m, data, ut):
 
   class tests(ut.TestCase):
     def test_1_setLimits(self):
-      shader = m().setLimits(0,5,5).setLimits(0,5,5)
+      shader = m().setLimits(0, 5, 5).setLimits(0, 5, 5)
 
       self.assertEqual(shader.__min__, [0,0])
       self.assertEqual(shader.__max__, [5,5])
@@ -15,8 +15,8 @@ def run(m, data, ut):
       shader = m().setLimits(0,5,5, scale_type='log10') # log scale cannot start at 0
 
     def test_3_apply_linear_data(self):
-      shader = m().setLimits(0,4,4).setLimits(0,4,4).initialize()
-      shader.applyOnBatches([[0,0],[1,1],[2,2],[3,3]])
+      shader = m().setLimits(0, 4, 4).setLimits(0, 4, 4).initialize()
+      shader.applyOnBatches([[0, 0], [1, 1], [2, 2], [3, 3]])
 
       self.assertEqual(shader.getAgg('cnt'), [[1, 0, 0, 0],
        [0, 1, 0, 0],
