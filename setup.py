@@ -14,7 +14,7 @@ SETUP_VARS = dict(
   },
   author="vnl2k",
   license='MIT',
-  python_requires='>=3.5'
+  python_requires='>=3.6'
 )
 
 try:
