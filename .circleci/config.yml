@@ -4,7 +4,7 @@ workflows:
   test:
     jobs:
       - python3.6
-        
+      - python3.6-immutables
       - python3.7
       - python3.8
 jobs:
@@ -15,7 +15,6 @@ jobs:
 
     steps:
       - checkout  # checkout source code to working directory
-      # - run: sudo chown -R circleci:circleci /usr/local/bin
       - run: pip install numpy --user && pip install funkpy --user
       - run: python all-tests.py
 
@@ -28,3 +27,13 @@ jobs:
     <<: *template
     docker:
       - image: circleci/python:3.8.0
+
+  python3.6-immutables: &template-immut
+    working_directory: ~/project
+    docker:
+      - image: circleci/python:3.6.4  # primary container for the build job
+
+    steps:
+      - checkout  # checkout source code to working directory
+      - run: pip install numpy funkpy immutbales --user
+      - run: python all-tests.py
