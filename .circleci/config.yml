@@ -4,8 +4,12 @@ workflows:
   test:
     jobs:
       - python3.6
+      - python3.6-immutables
+      - python3.6-Cython
       - python3.7
+      - python3.7-immutables
       - python3.8
+      - python3.8-immutables
 jobs:
   python3.6: &template
     working_directory: ~/project
@@ -14,23 +18,8 @@ jobs:
 
     steps:
       - checkout  # checkout source code to working directory
-      # - run: sudo chown -R circleci:circleci /usr/local/bin
-      # - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
-      # - restore_cache:  # ensure this step occurs *before* installing dependencies
-      #     key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-      - run:
-          command: |  # use pipenv to install dependencies
-            pip install numpy
-            pip install funkpy
-      # - save_cache:
-      #     key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-      #     paths:
-      #       - ".venv"
-      #       - "/usr/local/bin"
-      #       - "/usr/local/lib/python3.6/site-packages"
-      - run:
-        command: |
-          python manage.py test
+      - run: pip install numpy --user && pip install funkpy --user
+      - run: python all-tests.py
 
   python3.7:
     <<: *template
@@ -41,3 +30,33 @@ jobs:
     <<: *template
     docker:
       - image: circleci/python:3.8.0
+
+  python3.6-immutables: &template-immut
+    working_directory: ~/project
+    docker:
+      - image: circleci/python:3.6.4  # primary container for the build job
+
+    steps:
+      - checkout  # checkout source code to working directory
+      - run: pip install numpy funkpy immutables --user
+      - run: python all-tests.py
+
+  python3.7-immutables:
+    <<: *template-immut
+    docker:
+      - image: circleci/python:3.7.6
+
+  python3.8-immutables:
+    <<: *template-immut
+    docker:
+      - image: circleci/python:3.8.0
+
+  python3.6-Cython: &template-Cython
+    working_directory: ~/project
+    docker:
+      - image: circleci/python:3.6.4  # primary container for the build job
+
+    steps:
+      - checkout  # checkout source code to working directory
+      - run: pip install numpy funkpy Cython --user
+      - run: python all-tests.py
