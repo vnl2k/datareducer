@@ -5,6 +5,7 @@ workflows:
     jobs:
       - python3.6
       - python3.6-immutables
+      - python3.6-Cython
       - python3.7
       - python3.7-immutables
       - python3.8
@@ -49,3 +50,13 @@ jobs:
     <<: *template-immut
     docker:
       - image: circleci/python:3.8.0
+
+  python3.6-Cython: &template-Cython
+    working_directory: ~/project
+    docker:
+      - image: circleci/python:3.6.4  # primary container for the build job
+
+    steps:
+      - checkout  # checkout source code to working directory
+      - run: pip install numpy funkpy Cython --user
+      - run: python all-tests.py
