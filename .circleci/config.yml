@@ -3,11 +3,8 @@ workflows:
   version: 2
   test:
     jobs:
-      - python3.6:
-          filter:
-            branches:
-              only:
-              - master
+      - python3.6
+        
       - python3.7
       - python3.8
 jobs:
