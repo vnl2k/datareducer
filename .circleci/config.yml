@@ -15,8 +15,8 @@ jobs:
 
     steps:
       - checkout  # checkout source code to working directory
-      - run: sudo chown -R circleci:circleci /usr/local/bin
-      - run: pip install numpy && pip install funkpy
+      # - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: pip install numpy --user && pip install funkpy --user
       - run: python all-tests.py
 
   python3.7:
