@@ -3,20 +3,22 @@ workflows:
   version: 2
   test:
     jobs:
-      - python3.6
+      - python3.6:
+          filter:
+            branches:
+              only:
+              - master
       - python3.7
       - python3.8
 jobs:
   python3.6: &template
-    # branches:
-    #   only:
-    #    - master
     working_directory: ~/project
     docker:
       - image: circleci/python:3.6.4  # primary container for the build job
 
     steps:
       - checkout  # checkout source code to working directory
+      - run: sudo chown -R circleci:circleci /usr/local/bin
       - run: pip install numpy && pip install funkpy
       - run: python all-tests.py
 
