@@ -6,7 +6,9 @@ workflows:
       - python3.6
       - python3.6-immutables
       - python3.7
+      - python3.7-immutables
       - python3.8
+      - python3.8-immutables
 jobs:
   python3.6: &template
     working_directory: ~/project
@@ -37,3 +39,13 @@ jobs:
       - checkout  # checkout source code to working directory
       - run: pip install numpy funkpy immutables --user
       - run: python all-tests.py
+
+  python3.7:
+    <<: *template-immut
+    docker:
+      - image: circleci/python:3.7.6
+
+  python3.8:
+    <<: *template-immut
+    docker:
+      - image: circleci/python:3.8.0
