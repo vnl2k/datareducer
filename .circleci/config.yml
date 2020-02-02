@@ -35,5 +35,5 @@ jobs:
 
     steps:
       - checkout  # checkout source code to working directory
-      - run: pip install numpy funkpy immutbales --user
+      - run: pip install numpy funkpy immutables --user
       - run: python all-tests.py
