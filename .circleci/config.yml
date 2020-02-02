@@ -3,7 +3,11 @@ workflows:
   version: 2
   test:
     jobs:
-      - python3.6
+      - python3.6:
+          filters:
+            branches:
+              ignore:
+                - dev
       - python3.6-immutables
       - python3.6-Cython
       - python3.7
