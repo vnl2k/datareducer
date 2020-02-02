@@ -8,19 +8,15 @@ workflows:
       - python3.8
 jobs:
   python3.6: &template
-    branches:
-      only:
-       - master
+    # branches:
+    #   only:
+    #    - master
     working_directory: ~/project
     docker:
       - image: circleci/python:3.6.4  # primary container for the build job
 
     steps:
       - checkout  # checkout source code to working directory
-      # - run: sudo chown -R circleci:circleci /usr/local/bin
-      # - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
-      # - restore_cache:  # ensure this step occurs *before* installing dependencies
-      #     key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run: pip install numpy && pip install funkpy
       - run: python all-tests.py
 
