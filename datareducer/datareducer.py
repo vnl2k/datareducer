@@ -1,59 +1,31 @@
-import math, numbers
+import math
+from numbers import Number
 from array import array
 
 from numpy import empty, vectorize, arange
 from funkpy import Collection as _
-from typing import List, overload
+from typing import List, overload, Callable
 
-# pyximport imports directly .pyx files which have no external C-dependencies
-# It is used for dev purposes only!
-# import pyximport; pyximport.install()
-
-from datareducer.data_container import DataContainer
+from datareducer.data_container import DataContainer, SparseDataContainer
 
 try:
+  # pyximport imports directly .pyx files which have no external C-dependencies
+  # It is used for dev purposes only!
+  import pyximport
+  pyximport.install()
+  
   # helpers written in Cython
   from datareducer.utils import cLinearIndex as linearIndex, cLog10Index as log10Index
 
 except ImportError as e:
-  def linearIndex(min_val: float, max_val: float, bin_width: float, max_ind: int, val: float) -> int:
-    """Calculates the linear index of the corresponding bin.
-
-    Arguments:
-      min_val -- The minimum value of the scale
-      max_val -- The maxomum value of the scale
-      bin_width -- The number of bins of the scale
-      max_ind -- The index of the last bin for that scale
-    """
-
-    if val < min_val:
-      return None
-    if val >= max_val:
-      return None
-   
-    return math.floor((val-min_val)/bin_width)
-
-  def log10Index(min_val: float, max_val: float, bin_width: float, max_ind: int, val: float) -> int:
-    """Calculates the log-10 index of the corresponding bin.
-
-    Arguments:
-      min_val {number} -- The minimum value of the scale
-      max_val {number} -- The maxomum value of the scale
-      bin_width {number} -- The number of bins of the scale
-      max_ind {integer} -- The index of the last bin for that scale
-    """
-
-    if val < min_val:
-      return None
-    if val >= max_val:
-      return None
-    return math.floor(_log10(val/min_val)/bin_width)
+  from datareducer.utils_py import linearIndex, log10Index
 
 
 def _log10(val: float) -> float:
   return math.log10(math.fabs(val))
 
 
+NO_INITIALIZATION = 'Please run `shader.init() before applying it on values'
 
 
 class shader:
@@ -65,6 +37,9 @@ class shader:
     self.__bin_width__ = list()
     self.func = list()
     self.binType = list()
+    self.__dimLength__ = None
+    self.__lastDimInd__ = None
+    self.__exec_params__ = None
 
   def __setLinLimits__(self, min_val, max_val, bin_count):
     if min_val > max_val:
@@ -108,8 +83,12 @@ class shader:
       return self
 
   def initialize(self):
-
     self.__data__ = empty(self.__bin_number__, dtype='object')
+
+    self.__dimLength__ = len(self.func)
+
+    self.__lastDimInd__ = self.__dimLength__ - 1 
+
     return self
 
   # shorter name than initialize
@@ -126,9 +105,9 @@ class shader:
     """
 
     if self.__data__ is None:
-      self.initialize()
+      raise Exception(NO_INITIALIZATION)
 
-    if isinstance(arr, numbers.Number):
+    if self.__dimLength__ == 1:
       arr = [arr]
 
     inds = tuple(_.map(lambda val, ind: self.func[ind](self.__min__[ind], self.__max__[ind], self.__bin_width__[ind], self.__bin_number__[ind]-1, val), arr, range(len(arr)) ))
@@ -144,7 +123,7 @@ class shader:
 
     agg['cnt'] += 1
 
-    y_val_ind = yValueIndex or len(arr) - 1
+    y_val_ind = yValueIndex or self.__lastDimInd__
     y_val = arr[y_val_ind]
 
     agg['sum'] += y_val
@@ -168,9 +147,9 @@ class shader:
       ]
     """
     if self.__data__ is None:
-      self.initialize()
+      raise Exception(NO_INITIALIZATION)
 
-    if isinstance(matrix[0], numbers.Number):
+    if isinstance(matrix[0], Number):
       print("Argument \"matrix\" can only be List[List[float]]!")
       return self
 
@@ -230,36 +209,54 @@ class shader:
 class shaderArray(shader):
   def initialize(self, typecode: str = 'd'):
     self.__data__ = DataContainer(self.__bin_number__, typecode)
+    
+    self.__dimLength__ = len(self.func)
+
+    self.__lastDimInd__ = self.__dimLength__ - 1
+
+    self.__exec_params__ = _.map( \
+      lambda f, ind: (f, self.__min__[ind], self.__max__[ind], self.__bin_width__[ind], self.__bin_number__[ind]-1), \
+      self.func, range(self.__dimLength__))
     return self
 
   @overload
-  def apply(self, arr: float, yValueIndex: int=None):
+  def apply(self, arr: Number, lmbd: Callable, yValueIndex: int = None):
     pass
-  def apply(self, arr: List[float], yValueIndex: int=None):
+  def apply(self, arr: List[Number], lmbd: Callable, yValueIndex: int = None):
     """
       arr = [x1, x2, x3, ...]
     """
 
     if self.__data__ is None:
-      self.initialize()
+      raise Exception(NO_INITIALIZATION)
 
-    if isinstance(arr, numbers.Number):
-      arr = [arr]
+    if self.__dimLength__ == 1:
+      func, *args = self.__exec_params__[0]
+      ind = func(*args, arr)
+      if ind is None:
+        return self
+      self.__data__.set([ind], lmbd(self.__data__.get([ind]), arr))
 
-    inds = _.map(\
-      lambda val, ind:  self.func[ind](self.__min__[ind], self.__max__[ind], self.__bin_width__[ind], self.__bin_number__[ind]-1, val),\
-      arr,\
-      range(len(arr))\
-    )
+    else:
+      inds = [func(*args, val) for ((func, *args), val) in zip(self.__exec_params__, arr)]
 
-    # Points outside the set limits are ignored.
-    if None in inds:
-      return self
-
-    # CNT only for now
-    self.__data__.set(inds, self.__data__.get(inds) + 1)
+      # Points outside the set limits are ignored.
+      if None in inds:
+        return self
+      y_val_ind = yValueIndex or self.__lastDimInd__
+      y_val = arr[y_val_ind]
+      self.__data__.set(inds, lmbd(self.__data__.get(inds), y_val))
 
     return self
 
   def getAgg(self):
     return self.__data__.toMatrix()
+
+
+class sparseShader(shader):
+  def initialize(self):
+    self.__data__ = SparseDataContainer(self.__bin_number__)
+    self.__exec_params__ = _.map( \
+      lambda ind, f: (f, self.__min__[ind], self.__max__[ind], self.__bin_width__[ind], self.__bin_number__[ind]-1), \
+      enumerate(self.func))
+    return self

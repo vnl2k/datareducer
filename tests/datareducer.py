@@ -4,15 +4,15 @@ def run(m, data, ut):
     def test_1_setLimits(self):
       shader = m().setLimits(0, 5, 5).setLimits(0, 5, 5)
 
-      self.assertEqual(shader.__min__, [0,0])
-      self.assertEqual(shader.__max__, [5,5])
-      self.assertEqual(shader.__bin_number__, [5,5])
-      self.assertEqual(shader.__bin_width__, [1,1])
+      self.assertEqual(shader.__min__, [0, 0])
+      self.assertEqual(shader.__max__, [5, 5])
+      self.assertEqual(shader.__bin_number__, [5, 5])
+      self.assertEqual(shader.__bin_width__, [1, 1])
       self.assertEqual(shader.binType, ['lin', 'lin'])
 
     def test_2_setLimits_wrong_scale(self):
-      shader = m().setLimits(0,5,5, scale_type='wrong') # scale_type is wrong
-      shader = m().setLimits(0,5,5, scale_type='log10') # log scale cannot start at 0
+      shader = m().setLimits(0, 5, 5, scale_type='wrong') # scale_type is wrong
+      shader = m().setLimits(0, 5, 5, scale_type='log10') # log scale cannot start at 0
 
     def test_3_apply_linear_data(self):
       shader = m().setLimits(0, 4, 4).setLimits(0, 4, 4).initialize()
@@ -24,8 +24,8 @@ def run(m, data, ut):
        [0, 0, 0, 1]])
 
     def test_4_data_min_max(self):
-      shader = m().setLimits(0,4,4).setLimits(0,4,4).initialize()
-      shader.applyOnBatches([[0,0],[1,1],[2,2],[3,3]])
+      shader = m().setLimits(0, 4, 4).setLimits(0, 4, 4).initialize()
+      shader.applyOnBatches([[0, 0], [1, 1], [2, 2], [3, 3]])
 
       self.assertEqual(shader.getAgg('min'), [[0, 0, 0, 0],
        [0, 0, 0, 0],
@@ -38,8 +38,8 @@ def run(m, data, ut):
        [0, 0, 0, 3]])   
 
     def test_5_data_sum_sum2(self):
-      shader = m().setLimits(0,4,4).setLimits(0,4,4).initialize()
-      shader.applyOnBatches([[0,0],[1,1],[2,2],[2,2]])
+      shader = m().setLimits(0, 4, 4).setLimits(0, 4, 4).initialize()
+      shader.applyOnBatches([[0, 0], [1, 1], [2, 2], [2, 2]])
 
       self.assertEqual(shader.getAgg('sum'), [[0, 0, 0, 0],
        [0, 1, 0, 0],
@@ -78,10 +78,10 @@ def run(m, data, ut):
 
     def test_8_test_log_data(self):
       shader = m().setLimits(1e-10, 1, 10, scale_type='log10').initialize()
-      shader.apply([1e-10])
-      shader.apply([1e-9])
-      shader.apply([1e-8])
-      shader.apply([3e-8])
+      shader.apply(1e-10)
+      shader.apply(1e-9)
+      shader.apply(1e-8)
+      shader.apply(3e-8)
       shader.apply(9.9e-8)
       shader.apply(9.9999e-8)
       self.assertEqual(shader.getAgg('cnt'), [1., 1, 4, 0, 0, 0, 0, 0, 0, 0])

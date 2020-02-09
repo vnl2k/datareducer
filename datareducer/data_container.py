@@ -45,7 +45,7 @@ class DataContainer:
       indices = [indices]
     return self.get(indices)
 
-  def set(self, indices, val):
+  def set(self, indices: List[int], val):
     self.__buffer__[self.__calcPos__(self.__dims__, indices)] = val
     return self
 
@@ -85,7 +85,7 @@ class DataContainer:
 try:
   from immutables import Map
   class SparseDataContainer:
-    def __init__(self, dims: List[int], typecode: str = 'd'):
+    def __init__(self, dims: List[int]):
       length = _.reduce(lambda agg, i: agg*i, dims, 1)
        
       sparseLS = Map().mutate()
