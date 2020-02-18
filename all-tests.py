@@ -1,12 +1,11 @@
 import unittest as ut
-from datareducer import shader, shaderArray
-from datareducer import tree
+from datareducer.reducers import npArray, pyArray, tree
 from datareducer import DataContainer
 
 DATA = []
 
 from tests.datareducer import run
-tests = ut.TestLoader().loadTestsFromTestCase(run(shader, DATA, ut))
+tests = ut.TestLoader().loadTestsFromTestCase(run(npArray, DATA, ut))
 ut.TextTestRunner(verbosity=2).run(tests)
 
 from tests.data_container import run
@@ -19,7 +18,7 @@ tests = ut.TestLoader().loadTestsFromTestCase(sparseContainer)
 ut.TextTestRunner(verbosity=2).run(tests)
 
 from tests.datareducer_array import run
-tests = ut.TestLoader().loadTestsFromTestCase(run(shaderArray, [], ut))
+tests = ut.TestLoader().loadTestsFromTestCase(run(pyArray, [], ut))
 ut.TextTestRunner(verbosity=2).run(tests)
 
 

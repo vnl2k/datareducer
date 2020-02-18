@@ -4,6 +4,7 @@ workflows:
   test:
     jobs:
       - python3.6:
+          # THIS FILTER DOES not WORK!!!!
           filters:
             branches:
               ignore:
