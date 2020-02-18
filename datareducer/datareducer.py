@@ -81,12 +81,7 @@ class baseClass:
       return self
 
   def initialize(self):
-    self.__data__ = empty(self.__bin_number__, dtype='object')
-
-    self.__dimLength__ = len(self.func)
-
-    self.__lastDimInd__ = self.__dimLength__ - 1 
-
+    # the implementation depends on the underlaying data container
     return self
 
   # shorter name than initialize
@@ -95,10 +90,10 @@ class baseClass:
     return self
 
 
-class shaderArray(baseClass): # aka pyArray
+class ShaderArray(baseClass): # aka pyArray
   def initialize(self, typecode: str = 'd'):
     self.__data__ = DataContainer(self.__bin_number__, typecode)
-    
+
     self.__dimLength__ = len(self.func)
 
     self.__lastDimInd__ = self.__dimLength__ - 1
@@ -138,11 +133,45 @@ class shaderArray(baseClass): # aka pyArray
 
     return self
 
+  @overload
+  def applyOnBatch(self, matrix: List[Number], lmbd: Callable, y_value_index: int = None):
+    pass
+  def applyOnBatch(self, matrix: List[List[Number]], lmbd: Callable, y_value_index: int = None):
+    """
+      matrix =
+      [
+        [x1, x2, x3, ...],
+        [x1, x2, x3, ...],
+        [x1, x2, x3, ...],
+        ...
+      ]
+    """
+    if self.__data__ is None:
+      raise Exception(NO_INITIALIZATION)
+
+    if self.__dimLength__ == 1:
+      func, *args = self.__exec_params__[0]
+      for value in matrix:
+        ind = func(*args, value)
+        if ind is not None:
+          self.__data__.set([ind], lmbd(self.__data__.get([ind]), value))
+
+    else:
+      for arr in matrix:
+        inds = [func(*args, val) for ((func, *args), val) in zip(self.__exec_params__, arr)]
+
+        # Points outside the set limits are ignored.
+        if None in inds:
+          return self
+        y_val_ind = y_value_index or self.__lastDimInd__
+        y_val = arr[y_val_ind]
+        self.__data__.set(inds, lmbd(self.__data__.get(inds), y_val))
+
   def getAgg(self):
     return self.__data__.toMatrix()
 
 
-class sparseShader(baseClass):
+class SparseShader(baseClass):
   def initialize(self):
     self.__data__ = SparseDataContainer(self.__bin_number__)
     self.__exec_params__ = _.map( \

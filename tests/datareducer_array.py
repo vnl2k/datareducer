@@ -27,4 +27,25 @@ def run(m, data, ut):
         [0, 1, 0, 0],
         [0, 0, 1, 0],
         [0, 0, 0, 1]])
+
+    def test_3_applyOnBatch_1D_data(self):
+      shader = m().setLimits(0, 4, 4).init()
+      lmbd = lambda prev, _: prev + 1
+      
+      shader.applyOnBatch([0, 1, 2, 3, 4], lmbd)
+      self.assertEqual(shader.getAgg(), [1., 1., 1., 1.])
+      
+      shader.applyOnBatch([0, 1, 2, 3, 4], lmbd)
+      self.assertEqual(shader.getAgg(), [2., 2., 2., 2.])
+
+    def test_4_applyOnBatch_2D_data(self):
+      shader = m().setLimits(0, 4, 4).setLimits(0, 4, 4).init()
+      lmbd = lambda prev, _: prev + 1
+
+      shader.applyOnBatch([[0, 0], [1, 1], [2, 2], [3, 3]], lmbd)
+
+      self.assertEqual(shader.getAgg(), [[1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1]])
   return tests

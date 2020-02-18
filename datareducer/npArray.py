@@ -9,7 +9,7 @@ from datareducer.datareducer import baseClass, NO_INITIALIZATION, _log10
 
 
 
-class shader(baseClass): # aka npArray
+class Shader(baseClass): # aka npArray
 
   def initialize(self):
     self.__data__ = empty(self.__bin_number__, dtype='object')
@@ -60,7 +60,7 @@ class shader(baseClass): # aka npArray
 
     return self
 
-  def applyOnBatches(self, matrix: List[List[float]], yValueIndex: int=None):
+  def applyOnBatch(self, matrix: List[List[float]], yValueIndex: int=None):
     """
       matrix =
       [
@@ -122,8 +122,8 @@ class shader(baseClass): # aka npArray
     return vectorize(lambda i: i.get(agg) if i is not None else 0)(self.__data__).tolist()
 
   type_lookup = {
-    'lin': lambda mn, mx, w: arange(mn,mx,w).tolist(),
-    'log10': lambda mn, mx, w: list(map(lambda i: mn*math.pow(10,i), arange(0, _log10(mx/mn), w))),
+    'lin': lambda mn, mx, w: arange(mn, mx, w).tolist(),
+    'log10': lambda mn, mx, w: list(map(lambda i: mn*math.pow(10, i), arange(0, _log10(mx/mn), w))),
   }
 
   def getDimension(self, ind: int):

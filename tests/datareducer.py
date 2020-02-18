@@ -16,7 +16,7 @@ def run(m, data, ut):
 
     def test_3_apply_linear_data(self):
       shader = m().setLimits(0, 4, 4).setLimits(0, 4, 4).initialize()
-      shader.applyOnBatches([[0, 0], [1, 1], [2, 2], [3, 3]])
+      shader.applyOnBatch([[0, 0], [1, 1], [2, 2], [3, 3]])
 
       self.assertEqual(shader.getAgg('cnt'), [[1, 0, 0, 0],
        [0, 1, 0, 0],
@@ -25,7 +25,7 @@ def run(m, data, ut):
 
     def test_4_data_min_max(self):
       shader = m().setLimits(0, 4, 4).setLimits(0, 4, 4).initialize()
-      shader.applyOnBatches([[0, 0], [1, 1], [2, 2], [3, 3]])
+      shader.applyOnBatch([[0, 0], [1, 1], [2, 2], [3, 3]])
 
       self.assertEqual(shader.getAgg('min'), [[0, 0, 0, 0],
        [0, 0, 0, 0],
@@ -39,7 +39,7 @@ def run(m, data, ut):
 
     def test_5_data_sum_sum2(self):
       shader = m().setLimits(0, 4, 4).setLimits(0, 4, 4).initialize()
-      shader.applyOnBatches([[0, 0], [1, 1], [2, 2], [2, 2]])
+      shader.applyOnBatch([[0, 0], [1, 1], [2, 2], [2, 2]])
 
       self.assertEqual(shader.getAgg('sum'), [[0, 0, 0, 0],
        [0, 1, 0, 0],
@@ -53,7 +53,7 @@ def run(m, data, ut):
 
     def test_6_apply_linlog_data(self):
       shader = m().setLimits(0, 4, 4).setLimits(1, 10000, 4, scale_type='log10').initialize()
-      shader.applyOnBatches([[0, 1], [1, 10], [2, 100], [3, 1000], [4, 1001]])
+      shader.applyOnBatch([[0, 1], [1, 10], [2, 100], [3, 1000], [4, 1001]])
 
 
       self.assertEqual(shader.getAgg('cnt'), [[1, 0, 0, 0],
@@ -64,7 +64,7 @@ def run(m, data, ut):
     def test_6b_exclude_values(self):
       # values outside the limits are excluded, i.e. 1000 in is not within the limit
       shader = m().setLimits(0, 4, 4).setLimits(1, 1000, 3, scale_type='log10').initialize()
-      shader.applyOnBatches([[0, 2], [1, 20], [2, 200], [3, 999], [3, 1000]])
+      shader.applyOnBatch([[0, 2], [1, 20], [2, 200], [3, 999], [3, 1000]])
       self.assertEqual(shader.getAgg('cnt'), [[1, 0, 0],
        [0, 1, 0],
        [0, 0, 1],

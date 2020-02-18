@@ -1,13 +1,13 @@
-from datareducer.datareducer import shaderArray as pyArray
+from datareducer.datareducer import ShaderArray as pyArray
 
 
 try:
-  from datareducer.npArray import shader as npArray
+  from datareducer.npArray import Shader as npArray
 except:
   pass
 
 try:
-  from datareducer.datareducer import sparseShader as sparseArray
+  from datareducer.datareducer import SparseShader as sparseArray
 except:
   pass
 

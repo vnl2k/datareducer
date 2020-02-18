@@ -1,10 +1,8 @@
 import cProfile, pstats
-# from funkpy import Collection as _
 
+from datareducer.reducers import npArray, pyArray
 
-from datareducer import shader, shaderArray
-
-def profile_shader(m, message):
+def profile_npArray(m, message):
   print(message)
   pr = cProfile.Profile()
   pr.enable()
@@ -15,7 +13,7 @@ def profile_shader(m, message):
   pr.disable()
   pstats.Stats(pr).strip_dirs().sort_stats('tottime').print_stats()
 
-def profile_shaderArray(m, message):
+def profile_pyArray(m, message):
   print(message)
   pr = cProfile.Profile()
   pr.enable()
@@ -26,5 +24,5 @@ def profile_shaderArray(m, message):
   pr.disable()
   pstats.Stats(pr).strip_dirs().sort_stats('tottime').print_stats()
 
-profile_shader(shader, 'profile shader')
-profile_shaderArray(shaderArray, 'profile shaderArray')
+profile_npArray(npArray, 'profile shader')
+profile_pyArray(pyArray, 'profile shaderArray')
