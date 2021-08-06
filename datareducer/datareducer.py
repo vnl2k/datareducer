@@ -135,6 +135,9 @@ class ShaderArray(baseClass): # aka pyArray
 
   @overload
   def applyOnBatch(self, matrix: List[Number], lmbd: Callable, y_value_index: int = None):
+    """
+      matrix = [x1, x2, x3, ...]
+    """
     pass
   def applyOnBatch(self, matrix: List[List[Number]], lmbd: Callable, y_value_index: int = None):
     """
